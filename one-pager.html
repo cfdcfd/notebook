@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harness Engineering · 一页速览</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --border: #2e3345;
+    --text: #e2e4ea;
+    --text2: #9298a8;
+    --accent: #6c8cff;
+    --accent2: #4ecdc4;
+    --warn: #ff6b6b;
+    --good: #51cf66;
+    --gold: #ffd43b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "SF Pro Display", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 48px; }
+
+  h1 {
+    font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  h2 {
+    font-size: 22px; font-weight: 700; margin-bottom: 4px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--border); color: var(--text);
+  }
+  h3 { font-size: 16px; font-weight: 700; margin: 0 0 6px 0; color: var(--gold); }
+  .muted { color: var(--text2); }
+  strong { color: #fff; }
+  .warn { color: var(--warn); font-weight: 600; }
+  .good { color: var(--good); }
+  a { color: var(--accent); }
+  a:hover { text-decoration: underline; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    position: relative;
+  }
+  .card-gold { border-left: 3px solid var(--gold); }
+  .core-badge {
+    position: absolute; top: 14px; right: 18px;
+    font-size: 10px; color: var(--gold);
+    letter-spacing: 1.5px; font-weight: 700;
+  }
+
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 0; font-size: 13.5px; }
+  th {
+    background: var(--surface2); color: var(--accent); text-align: left;
+    padding: 8px 10px; font-weight: 600; border-bottom: 2px solid var(--border);
+  }
+  td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(108,140,255,.04); }
+  tr.hard-rule td { background: rgba(255,107,107,.06); }
+  tr.hard-rule:hover td { background: rgba(255,107,107,.10); }
+
+  .callout {
+    background: rgba(108,140,255,.07);
+    border-left: 3px solid var(--accent);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 14px;
+  }
+  .callout-warn {
+    background: rgba(255,107,107,.07);
+    border-left-color: var(--warn);
+  }
+  .callout .headline {
+    font-size: 17px; font-weight: 700; color: var(--text);
+    letter-spacing: .3px; margin-bottom: 6px;
+  }
+
+  .strategies {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: rgba(255,193,77,.06);
+    border-radius: 8px;
+    font-size: 13.5px;
+    line-height: 2;
+  }
+  .strategies strong { color: var(--gold); }
+  .strategies .chip {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin: 0 4px 4px 0;
+    font-size: 12.5px;
+    color: var(--text);
+  }
+  .strategies .chip .num {
+    color: var(--gold); font-weight: 700; margin-right: 4px;
+  }
+
+  .footer-links {
+    font-size: 12px; text-align: center;
+    margin: 16px 0 0 0;
+  }
+
+  .priority-plan {
+    margin: 18px 0 22px;
+    padding: 18px 20px 14px;
+    background: linear-gradient(135deg, rgba(81,207,102,.06), rgba(108,140,255,.06));
+    border: 1px solid rgba(81,207,102,.25);
+    border-radius: 12px;
+  }
+  .priority-title {
+    font-size: 16px; font-weight: 700; color: var(--text);
+    margin-bottom: 14px; letter-spacing: .3px;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .priority-badge {
+    font-size: 11px; color: var(--good); font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 3px 9px;
+    border: 1px solid rgba(81,207,102,.35);
+    border-radius: 4px;
+    background: rgba(81,207,102,.08);
+  }
+  .priority-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  @media (max-width: 700px) {
+    .priority-grid { grid-template-columns: 1fr; }
+  }
+  .priority-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  .priority-step.step-1 { border-left: 3px solid var(--good); }
+  .priority-step.step-2 { border-left: 3px solid var(--accent); border-style: solid dashed dashed solid; }
+  .step-head {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px; font-size: 12px;
+  }
+  .step-num { font-size: 18px; font-weight: 800; color: var(--gold); }
+  .step-label { color: var(--text2); letter-spacing: .5px; }
+  .step-tag {
+    font-size: 10.5px; padding: 2px 7px; border-radius: 3px;
+    background: var(--surface2); color: var(--text2);
+    border: 1px solid var(--border); margin-left: auto;
+  }
+  .step-tag.good { background: rgba(81,207,102,.12); color: var(--good); border-color: rgba(81,207,102,.35); }
+  .step-title { color: var(--text); font-size: 14px; margin-bottom: 6px; }
+  .step-body { color: var(--text2); font-size: 12.5px; line-height: 1.75; }
+  .step-body strong { color: var(--text); }
+  .step-body code { color: var(--accent2); font-size: 11.5px; background: rgba(78,205,196,.08); padding: 1px 4px; border-radius: 3px; }
+  .priority-note {
+    font-size: 12.5px; color: var(--text2); line-height: 1.75;
+    padding-top: 10px; border-top: 1px dashed rgba(255,255,255,.08);
+  }
+  .priority-note strong { color: var(--good); }
+
+  .pull-push-row {
+    display: flex; gap: 8px; margin: 6px 0 2px;
+    flex-wrap: wrap; font-size: 12px;
+  }
+  .pull-push-row > div {
+    flex: 1; min-width: 220px;
+    padding: 8px 10px; border-radius: 6px;
+  }
+  .pull-push-row .pull-box {
+    background: rgba(81,207,102,.08);
+    border: 1px solid rgba(81,207,102,.25);
+  }
+  .pull-push-row .push-box {
+    background: rgba(108,140,255,.08);
+    border: 1px solid rgba(108,140,255,.25);
+    border-style: dashed;
+  }
+  .pp-tag {
+    display: inline-block; font-size: 10.5px; letter-spacing: .5px;
+    padding: 1px 6px; border-radius: 3px; margin-right: 6px; vertical-align: middle;
+  }
+  .pp-tag.tag-first { background: rgba(81,207,102,.18); color: var(--good); }
+  .pp-tag.tag-next { background: rgba(108,140,255,.18); color: var(--accent); }
+
+  footer {
+    text-align: center;
+    padding: 24px 0 0;
+    margin-top: 24px;
+    color: var(--text2);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 700px) {
+    h1 { font-size: 22px; }
+    h2 { font-size: 18px; }
+    table { font-size: 12.5px; }
+    td, th { padding: 7px 8px; }
+  }
+
+  @media print {
+    body { background: #fff; color: #111; font-size: 12pt; }
+    .container { max-width: none; padding: 10mm 12mm; }
+    h1 { -webkit-text-fill-color: #111; color: #111; background: none; }
+    h2, h3 { color: #111; }
+    .muted, footer { color: #444; }
+    .card, .callout { break-inside: avoid; border-color: #999; background: #fafafa; }
+    .callout-warn { background: #fff6f6; }
+    .strategies { background: #fffdf0; }
+    tr.hard-rule td { background: #fff6f6; }
+    a { color: #06c; }
+    .core-badge { color: #a80; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Harness Engineering</h1>
+  <p class="muted" style="margin-bottom: 20px; font-size: 14px">让 AI 更靠谱地完成复杂任务 · 一页速览</p>
+
+  <h2 style="margin-bottom: 4px">提升推理效果的所有方法 = 监督者的一个动作</h2>
+  <p class="muted" style="margin-top:0; font-size:13px">可单独分享 · 完整论证见 <a href="./presentation.html">presentation.html</a></p>
+
+  <!-- 核心论点 -->
+  <div class="callout callout-warn">
+    <div class="headline">这些方法不是"功能开关"，而是监督者<strong>看情况</strong>使用的动作。</div>
+    <div>
+      就像汽车的辅助驾驶：它不会一直自动刹车、也不会一直保持车道，而是<strong>看到什么情况触发什么功能</strong>。
+      我们让一个"监督者"在 AI 干活时全程盯着，按实际情况决定用哪个方法——而不是事先拍板。
+      <br>
+      <span class="muted" style="font-size: 12.5px">事前拍板 = 靠猜 · 运行中观察 = 按真实情况出手 · 同一份运行记录还能反过来调整这张对照表</span>
+    </div>
+    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,107,107,.3); font-size: 12.5px">
+      <strong>反直觉：这不是"用更多钱换质量"，而是往往<span class="good">更省钱</span>。</strong>
+      <span class="muted">Anthropic 官方测试：Sonnet + Opus 顾问 vs Sonnet 单干，SWE-bench Multilingual 分数 +2.7 pp，同时成本 -11.9%——早介入抵消了后期的失败重试与超长生成。</span>
+    </div>
+  </div>
+
+  <!-- 执行优先级 · P0.5 先复刻已验证方案 -->
+  <div class="priority-plan">
+    <div class="priority-title">
+      <span class="priority-badge">执行优先级 · MVP</span>
+      先做已被官方 benchmark 过的，再做我们的增量
+    </div>
+    <div class="priority-grid">
+      <div class="priority-step step-1">
+        <div class="step-head">
+          <span class="step-num">①</span>
+          <span class="step-label">P0.5 · 首发</span>
+          <span class="step-tag good">已验证</span>
+        </div>
+        <div class="step-title"><strong>复刻 Anthropic Advisor Strategy（Pull 路径）</strong></div>
+        <div class="step-body">
+          给 executor（做活的模型）注册一个"求助"工具，<strong>它自己</strong>判断"这步我拿不准"时主动调用 → 由更强的顾问（Opus / MiniMax / Claude）返回一段 plan，它继续干。
+          <br><br>
+          <span class="muted" style="font-size: 11.5px">
+            ▸ 一次 API 调用内完成，工程改动极小（模仿 <code>advisor_20260301</code> 工具声明 + <code>max_uses</code> 封顶）<br>
+            ▸ 顾问硬边界：<strong>不调工具 · 不出用户可见内容 · 只返 plan/correction/stop</strong><br>
+            ▸ 官方数据直接可引用：<strong class="good">SWE-bench +2.7 pp · 成本 -11.9% · Haiku 翻倍</strong>
+          </span>
+        </div>
+      </div>
+      <div class="priority-step step-2">
+        <div class="step-head">
+          <span class="step-num">②</span>
+          <span class="step-label">P1 · 增量</span>
+          <span class="step-tag">我们的差异化</span>
+        </div>
+        <div class="step-title"><strong>Push 兜底 + 止损规则（我们的增量）</strong></div>
+        <div class="step-body">
+          Pull 路径依赖 executor 自己发现问题——但 LLM 常常"<strong>自信地错</strong>"毫无察觉。我们补两条 Anthropic 方案没有的硬防线：
+          <br><br>
+          <span class="muted" style="font-size: 11.5px">
+            ▸ <strong>Push 主动介入</strong>：Proxy 看到 logprob 骤降 / 原地打转 / 工具连续失败 → 直接打断<br>
+            ▸ <strong>止损硬规则</strong>：同一错误小修 ≥ 2 次 → 强制换策略，固化"&gt;2 轮自纠有害"研究结论<br>
+            ▸ 前提：P0 就要开始采集 logprobs / 推理流 / 完整 header（这是 P1 能启动的底座）
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="priority-note">
+      <strong>为什么这个顺序</strong>：先复刻已被验证的方案拿到"提质 + 降本"基本盘（低风险、可对标），再做我们的 push 增量填补 pull 兜不住的死角（差异化价值）。不是两步做成一个大版本，而是 <strong>P0.5 就能独立上线看效果</strong>。
+    </div>
+  </div>
+
+  <!-- 主面板：监督者总线 -->
+  <div class="card card-gold">
+    <div class="core-badge">CORE</div>
+    <h3>监督者总线</h3>
+    <p class="muted" style="font-size: 13px; margin-bottom: 8px">
+      一个贯穿<strong>做计划 → 写代码 → 查验收</strong>全流程的"观察员"。每次 AI 调用模型时它都在一旁盯着，一发现不对劲就出手。
+    </p>
+    <div class="pull-push-row">
+      <div class="pull-box">
+        <span class="pp-tag tag-first">P0.5 先上</span><strong>被请教（pull）</strong><br>
+        <span class="muted" style="font-size: 11.5px">模型自己意识到"这步我拿不准" → 主动调 advisor tool。对应 Anthropic <em>advisor strategy</em>，官方已验证。</span>
+      </div>
+      <div class="push-box">
+        <span class="pp-tag tag-next">P1 增量</span><strong>主动打断（push）</strong><br>
+        <span class="muted" style="font-size: 11.5px">模型"自信地错"没察觉时，监督者根据外部信号强行介入。这是 pull 兜不住的场景，我们补上。</span>
+      </div>
+    </div>
+    <p class="muted" style="font-size: 11.5px; margin: 6px 0 4px">
+      下方表格列的"看到什么→做什么"对两种触发路径都适用；区别在于<strong>由谁发起</strong>。
+    </p>
+
+    <table>
+      <tr>
+        <th style="width: 34%">监督者看到的情况</th>
+        <th style="width: 38%">监督者做什么</th>
+        <th style="width: 28%">已有研究数据</th>
+      </tr>
+      <tr>
+        <td>模型在关键位置（API 名 / 路径 / 数值）<strong>突然开始犹豫</strong>（置信度骤降）🔑</td>
+        <td>暂停生成 → 先去查权威文档 → 拿到资料再继续</td>
+        <td class="good">胡编 API 导致的返工 ↓60-80%</td>
+      </tr>
+      <tr>
+        <td>模型的<strong>思考时间快用完了</strong>，却还没得出结论</td>
+        <td>插入一句"Wait, 让我再想想"，强迫它多思考一会</td>
+        <td class="good"><strong>+7 个百分点</strong><br><span class="muted" style="font-size:11.5px">(s1 论文 AIME24：50%→57%)</span></td>
+      </tr>
+      <tr>
+        <td>模型<strong>原地打转</strong> / 长时间没进展</td>
+        <td>让它换角度想："假设现在方案已经失败，列出 3 个最可能的原因"</td>
+        <td class="good">无效重试 ↓45%</td>
+      </tr>
+      <tr>
+        <td>工具（如查数据库、跑测试）<strong>连续失败 ≥ 2 次</strong></td>
+        <td>把相关文档喂给它 → 再重试；仍不行就换思路</td>
+        <td class="good">领域知识类幻觉 ↓40-60%</td>
+      </tr>
+      <tr>
+        <td>任务属于<strong>简单约束类</strong>（比如：遵循指令格式、分类、信息抽取）</td>
+        <td>直接关掉"深度思考"模式<br><span class="muted" style="font-size:11.5px">(反常识但有研究支持)</span></td>
+        <td class="good">避免 -10~36% 的反向退化</td>
+      </tr>
+      <tr class="hard-rule">
+        <td class="warn">⚠ <strong>同一个错误已经"小修过 2 次"仍没修好</strong></td>
+        <td class="warn">强制<strong>换策略</strong>（见下方档位）</td>
+        <td class="warn">&gt; 2 轮自我纠错反而会把模型带偏</td>
+      </tr>
+    </table>
+
+    <div class="strategies">
+      <strong>换策略档位（五选一）</strong>：
+      <br>
+      <span class="chip"><span class="num">①</span>让模型独立想 N 次，选最优的那个</span>
+      <span class="chip"><span class="num">②</span>让模型独立想 N 次，<strong>合并各版本的好处</strong>（比单选最优再 +5~8%）</span>
+      <span class="chip"><span class="num">③</span>强制先查资料再重做</span>
+      <span class="chip"><span class="num">④</span><strong>请更强的模型当顾问</strong>（局部上场，不必全程用）</span>
+      <span class="chip"><span class="num">⑤</span>多视角交叉评审 / 转人工</span>
+      <div class="muted" style="font-size: 11.5px; margin-top: 8px; line-height: 1.7; padding-top: 8px; border-top: 1px dashed rgba(255,193,77,.2)">
+        档位 ④ 的依据：Anthropic 实测 Haiku 4.5 在 BrowseComp 上 19.7% → 加 Opus 顾问后 <strong style="color: var(--good)">41.2%（翻倍）</strong>，比 Sonnet 单跑便宜 85%。大多时候<strong>不必把全程换成大模型</strong>，只在关键决策点请教一下就够。
+      </div>
+    </div>
+  </div>
+
+  <!-- 止损规则 -->
+  <div class="callout" style="font-size: 13.5px">
+    <span class="pp-tag tag-next" style="margin-right:8px">P1 增量</span><strong class="warn">止损规则（硬规则）</strong>：同一个问题上，用"小修"（续思、重注入提示、唱反调、让它先复述问题）累计修了 <strong>2 次还没修好</strong>，就<strong>禁止继续小修</strong>，必须切换到上面的"换策略档位"。这条规则把研究结论"超过 2 轮自我纠错反而有害"固化成强制协议，避免 AI 在错误方向上越陷越深。
+    <br><span class="muted" style="font-size: 12px">说明：P0.5 先把 pull 路径（advisor tool）上线拿到基本盘；止损规则和 push 主动介入作为 P1 增量，兜住 executor "自信地错"没主动求助的场景——这是 Anthropic advisor strategy 之上我们的差异化防线。</span>
+  </div>
+
+  <p class="muted footer-links">
+    深入阅读：
+    <a href="./presentation.html#insight">§三 核心洞见</a> ·
+    <a href="./presentation.html#arch">§五 架构</a> ·
+    <a href="./presentation.html#supervisor">§六 监督者</a> ·
+    <a href="./presentation.html#compute">§八 推理时计算</a> ·
+    <a href="./deep-research-maximize-llm-quality.md">研究综述</a> ·
+    <a href="./supervisor-mode-design.md">监督者协议</a> ·
+    <a href="https://claude.com/blog/the-advisor-strategy" target="_blank" rel="noopener">Anthropic Advisor Strategy</a>
+  </p>
+
+  <footer>
+    Harness Engineering · 一页速览 · 与 <a href="./presentation.html">presentation.html</a> 中「速览」节同步
+  </footer>
+</div>
+</body>
+</html>

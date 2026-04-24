@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harness Engineering 战略与实施方案</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --border: #2e3345;
+    --text: #e2e4ea;
+    --text2: #9298a8;
+    --accent: #6c8cff;
+    --accent2: #4ecdc4;
+    --warn: #ff6b6b;
+    --good: #51cf66;
+    --gold: #ffd43b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "SF Pro Display", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(15,17,23,.88);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex; align-items: center; gap: 24px;
+    height: 52px;
+    overflow-x: auto;
+  }
+  nav a {
+    color: var(--text2); text-decoration: none; font-size: 13px;
+    white-space: nowrap; padding: 14px 0;
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+  }
+  nav a:hover, nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+  nav .logo { color: var(--accent); font-weight: 700; font-size: 15px; margin-right: 12px; }
+
+  /* LAYOUT */
+  .container { max-width: 1080px; margin: 0 auto; padding: 72px 24px 80px; }
+  section { margin-bottom: 64px; scroll-margin-top: 64px; }
+
+  /* TYPOGRAPHY */
+  h1 { font-size: 36px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px;
+       background: linear-gradient(135deg, var(--accent), var(--accent2));
+       -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  h2 { font-size: 26px; font-weight: 700; margin-bottom: 20px; padding-bottom: 10px;
+       border-bottom: 2px solid var(--border); color: var(--text); }
+  h3 { font-size: 18px; font-weight: 600; margin: 28px 0 12px; color: var(--accent); }
+  h4 { font-size: 15px; font-weight: 600; margin: 20px 0 8px; color: var(--accent2); }
+  p { margin-bottom: 14px; color: var(--text); }
+  .subtitle { font-size: 16px; color: var(--text2); margin-bottom: 32px; }
+  .muted { color: var(--text2); }
+  strong { color: #fff; }
+  .warn { color: var(--warn); font-weight: 600; }
+  .good { color: var(--good); }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .card-accent { border-left: 3px solid var(--accent); }
+  .card-warn { border-left: 3px solid var(--warn); }
+  .card-good { border-left: 3px solid var(--good); }
+  .card-gold { border-left: 3px solid var(--gold); }
+
+  /* TABLES */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14px; }
+  th { background: var(--surface2); color: var(--accent); text-align: left;
+       padding: 10px 14px; font-weight: 600; border-bottom: 2px solid var(--border); }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:hover td { background: rgba(108,140,255,.04); }
+  .tag {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+  }
+  .tag-p0 { background: rgba(255,107,107,.15); color: var(--warn); }
+  .tag-p1 { background: rgba(255,212,59,.15); color: var(--gold); }
+  .tag-p2 { background: rgba(108,140,255,.15); color: var(--accent); }
+
+  /* DIAGRAM */
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin: 20px 0;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre;
+    overflow-x: auto;
+    color: var(--text2);
+  }
+  .diagram .hl { color: var(--accent); font-weight: 700; }
+  .diagram .hl2 { color: var(--accent2); font-weight: 700; }
+  .diagram .hw { color: var(--warn); }
+
+  /* FLOW */
+  .flow { display: flex; align-items: stretch; gap: 12px; margin: 20px 0; flex-wrap: wrap; }
+  .flow-step {
+    flex: 1; min-width: 160px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    position: relative;
+    text-align: center;
+  }
+  .flow-step::after {
+    content: "→"; position: absolute; right: -18px; top: 50%;
+    transform: translateY(-50%); color: var(--text2); font-size: 18px;
+  }
+  .flow-step:last-child::after { display: none; }
+  .flow-num {
+    display: inline-block; width: 28px; height: 28px; line-height: 28px;
+    border-radius: 50%; background: var(--accent); color: #fff;
+    font-size: 13px; font-weight: 700; margin-bottom: 8px;
+  }
+  .flow-step h5 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .flow-step p { font-size: 12px; color: var(--text2); margin: 0; }
+
+  /* CALLOUT */
+  .callout {
+    background: rgba(108,140,255,.07);
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  .callout-warn {
+    background: rgba(255,107,107,.07);
+    border-left-color: var(--warn);
+  }
+
+  /* METRIC ROW */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 20px 0; }
+  .metric {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+  }
+  .metric .val { font-size: 32px; font-weight: 800; color: var(--accent); }
+  .metric .label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 28px; margin: 20px 0; }
+  .timeline::before {
+    content: ""; position: absolute; left: 8px; top: 4px; bottom: 4px;
+    width: 2px; background: var(--border);
+  }
+  .tl-item { position: relative; margin-bottom: 24px; }
+  .tl-item::before {
+    content: ""; position: absolute; left: -24px; top: 6px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--bg);
+  }
+  .tl-item.done::before { background: var(--good); }
+  .tl-item .tl-title { font-weight: 700; font-size: 15px; color: var(--text); }
+  .tl-item .tl-desc { font-size: 13px; color: var(--text2); margin-top: 4px; }
+
+  /* FOOTER */
+  footer { text-align: center; padding: 40px 0; color: var(--text2); font-size: 12px; border-top: 1px solid var(--border); }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 26px; }
+    h2 { font-size: 20px; }
+    .flow { flex-direction: column; }
+    .flow-step::after { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">Harness Engineering</span>
+  <a href="#tldr">速览</a>
+  <a href="#why">为什么做</a>
+  <a href="#problem">根本问题</a>
+  <a href="#insight">核心洞见</a>
+  <a href="#what">重点做什么</a>
+  <a href="#arch">架构</a>
+  <a href="#supervisor">监督者</a>
+  <a href="#eval">评估器</a>
+  <a href="#compute">算力换质量</a>
+  <a href="#how">怎么做</a>
+  <a href="#risk">风险</a>
+  <a href="#metrics">度量</a>
+</nav>
+
+<div class="container">
+
+<!-- ===== COVER ===== -->
+<section id="cover">
+  <h1>Harness Engineering<br>战略与实施方案</h1>
+  <p class="subtitle">让自有 LLM 集群（Qwen 122B / MiniMax M2.5）稳定运行数小时级自主任务</p>
+  <div class="metrics">
+    <div class="metric"><div class="val">122B</div><div class="label">自有模型 · MoE 10B 激活</div></div>
+    <div class="metric"><div class="val">3-6h</div><div class="label">目标连续自主工作时长</div></div>
+    <div class="metric"><div class="val">事中 + 事后</div><div class="label">Supervisor 总线 + Evaluator 门禁</div></div>
+  </div>
+</section>
+
+<!-- ===== 速览 · 一页总览 ===== -->
+<section id="tldr" style="padding: 28px 0">
+  <h2 style="margin-bottom: 4px">速览 · 提升推理效果的方法 = Supervisor 的动作</h2>
+  <p class="muted" style="margin-top:0; font-size:13px">一页速览 · 可独立阅读 · 下方各章为详细论证</p>
+
+  <!-- 顶部核心论点 -->
+  <div class="callout callout-warn" style="margin: 14px 0 18px 0; padding: 14px 18px">
+    <div style="font-size: 17px; font-weight: 700; color: var(--text); letter-spacing: .3px">
+      方法不是功能开关，是 Supervisor 的动作。
+    </div>
+    <div style="font-size: 13px; margin-top: 6px">
+      人类定"信号 → 动作"映射表，Supervisor 在运行时按实际信号调度。<br>
+      <span class="muted" style="font-size: 12px">静态配置 = 猜 · 动态调度 = 按实际信号决策 · 同一套 trace 数据可持续校准调度策略</span>
+    </div>
+  </div>
+
+  <!-- 三栏主体 -->
+  <div style="display:grid; grid-template-columns: 1fr 2.4fr 1fr; gap: 14px; align-items: stretch">
+
+    <!-- ① 事前路由 -->
+    <div class="card" style="padding: 14px">
+      <h4 style="margin: 0 0 4px 0; font-size: 14px">① 事前路由（Proxy）</h4>
+      <p class="muted" style="margin:0 0 8px 0; font-size: 11px">按 intent 静态决策 · 请求发出前</p>
+      <ul style="margin: 0; padding-left: 16px; font-size: 12.5px; line-height: 1.8">
+        <li><strong>选择性 CoT</strong><br><span class="muted" style="font-size: 11px">简单约束任务关思考，避免 -10~36% 负效应</span></li>
+        <li><strong>角色思考预算</strong><br><span class="muted" style="font-size: 11px">planner 高 / generator 中 / evaluator 低</span></li>
+        <li><strong>采样参数</strong><br><span class="muted" style="font-size: 11px">evaluator 温度 ≈ 0；generator 略高</span></li>
+      </ul>
+    </div>
+
+    <!-- ② 事中调度（主角） -->
+    <div class="card card-gold" style="padding: 14px; position: relative">
+      <div style="position:absolute; top:10px; right:14px; font-size: 10px; color: var(--gold); letter-spacing: 1px">CORE</div>
+      <h4 style="margin: 0 0 4px 0; font-size: 14px">② 事中调度 · Supervisor 总线</h4>
+      <p class="muted" style="margin:0 0 10px 0; font-size: 11px">信号驱动 · 生成过程中动态决策</p>
+
+      <table style="font-size: 11.5px; margin: 0">
+        <tr>
+          <th style="padding: 6px 8px">触发信号</th>
+          <th style="padding: 6px 8px">动作 / verdict</th>
+          <th style="padding: 6px 8px">数据点</th>
+        </tr>
+        <tr>
+          <td style="padding: 6px 8px"><code>logprob_drop</code> 🔑</td>
+          <td style="padding: 6px 8px"><code>rag_inject</code> / <code>budget_force</code></td>
+          <td style="padding: 6px 8px" class="good">幻觉 API 返工 -60-80%</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 8px"><code>thinking_budget_approach</code></td>
+          <td style="padding: 6px 8px"><code>budget_force</code>（"Wait" 注入）</td>
+          <td style="padding: 6px 8px" class="good">s1 论文 AIME24 +7 pp（50%→57%）</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 8px"><code>loop_detected</code> / <code>no_progress</code></td>
+          <td style="padding: 6px 8px"><code>devil_advocate</code> / <code>wm_refresh</code></td>
+          <td style="padding: 6px 8px" class="good">无效重试 -45%</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 8px"><code>tool_failure_streak</code> ≥ 2</td>
+          <td style="padding: 6px 8px"><code>rag_inject</code> / <code>pivot</code></td>
+          <td style="padding: 6px 8px" class="good">领域幻觉 -40-60%</td>
+        </tr>
+        <tr>
+          <td style="padding: 6px 8px" class="warn"><strong>同错误 adjust ≥ 2 次</strong></td>
+          <td style="padding: 6px 8px" class="warn"><strong>escalate_strategy</strong>（硬规则）</td>
+          <td style="padding: 6px 8px" class="warn">&gt; 2 轮自纠反而有害</td>
+        </tr>
+      </table>
+
+      <div style="margin-top: 10px; font-size: 11.5px; line-height: 1.7; padding: 8px 10px; background: rgba(255,193,77,.06); border-radius: 6px">
+        <strong style="color: var(--gold)">策略切换档位</strong>：
+        <code>bon_rerun</code> · <code>ensemble_rerun</code>（Response Merging +5-8%）· <code>rag_gated_rerun</code> · <code>model_upgrade</code> · <code>human_escalation</code>
+      </div>
+    </div>
+
+    <!-- ③ 事后门禁 -->
+    <div class="card" style="padding: 14px">
+      <h4 style="margin: 0 0 4px 0; font-size: 14px">③ 事后门禁（Evaluator）</h4>
+      <p class="muted" style="margin:0 0 8px 0; font-size: 11px">feature 完成后 · 阻断低质提交</p>
+      <ul style="margin: 0; padding-left: 16px; font-size: 12.5px; line-height: 1.8">
+        <li><strong>多视角扇出</strong><br><span class="muted" style="font-size: 11px">功能 / 边界 / 质量 并行</span></li>
+        <li><strong>工具验证 &gt; LLM 判断</strong><br><span class="muted" style="font-size: 11px">Playwright / 测试 / lint 落地</span></li>
+        <li><strong>Golden Set 回归</strong><br><span class="muted" style="font-size: 11px">反过来校准 Supervisor 调度</span></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- 底部硬规则 -->
+  <div class="callout" style="margin-top: 16px; padding: 10px 14px; font-size: 13px">
+    <strong class="warn">反脆弱硬规则</strong>：同一 feature 同一错误类型，<code>adjust</code> / <code>budget_force</code> / <code>wm_refresh</code> / <code>rar_inject</code> 合计 <strong>≥ 2 次</strong> 必须 <code>escalate_strategy</code>——把 "&gt; 2 轮自我纠错反而有害" 从研究结论固化为协议约束。
+  </div>
+
+  <p class="muted" style="font-size: 11.5px; text-align: center; margin: 14px 0 0 0">
+    详细论证：<a href="#insight">§三 核心洞见</a> · <a href="#arch">§五 架构</a> · <a href="#supervisor">§六 Supervisor</a> · <a href="#compute">§八 推理时计算</a>
+  </p>
+</section>
+
+<!-- ===== 为什么做 ===== -->
+<section id="why">
+  <h2>一、为什么做</h2>
+
+  <h3>1.1 业务价值：「能跑长任务」才是真正差异化</h3>
+  <div class="card-grid">
+    <div class="card card-accent">
+      <h4>短任务没有壁垒</h4>
+      <p>单次问答、补全——任何商业 API 都能做。短任务无法体现自有集群和 Harness 的价值。</p>
+    </div>
+    <div class="card card-good">
+      <h4>长任务才有飞轮</h4>
+      <p>用户能稳定让 AI 自主运行 <strong>数小时</strong>、持续产出<strong>可合并的代码/文档</strong> → 采用率上升 → 集群价值被证明 → 获得更多投入。</p>
+    </div>
+  </div>
+
+  <h3>1.2 集群定位：算力是战略资产</h3>
+  <table>
+    <tr><th>维度</th><th>自有 122B 集群</th><th>商业 API（Claude/GPT）</th></tr>
+    <tr><td>推理成本</td><td class="good">低（MoE 仅 10B 激活）</td><td>高</td></tr>
+    <tr><td>可控性</td><td class="good">完全可控：思考预算、并行度、优先级</td><td>黑盒</td></tr>
+    <tr><td>数据安全</td><td class="good">不出域</td><td>需信任第三方</td></tr>
+    <tr><td>模型能力上限</td><td class="warn">弱于同代闭源前沿</td><td>更强</td></tr>
+    <tr><td>空余算力</td><td class="good"><strong>大量</strong>——可投向评估与验证</td><td>不存在此概念</td></tr>
+  </table>
+  <div class="callout">
+    <strong>核心命题</strong>：把大量空余算力 <strong>可重复地转化为可靠性与产出质量</strong>，而不是空转。Harness Engineering 的使命就是完成这个转化。
+    <br><span class="muted" style="font-size: 13px; display: inline-block; margin-top: 6px">📌 注（2026-04 更新）：并非"一定要花更多算力"。Anthropic Advisor Strategy 实测数据显示<strong>事中早介入往往反而省钱</strong>（SWE-bench +2.7 pp · 成本 -11.9%）——见 <a href="#supervisor">§6.6</a>。"空余算力"是上限兜底，不是必然支出。</span>
+  </div>
+
+  <h3>1.3 飞轮模型</h3>
+  <div class="flow">
+    <div class="flow-step"><div class="flow-num">1</div><h5>Harness 提升长任务成功率</h5></div>
+    <div class="flow-step"><div class="flow-num">2</div><h5>更多用户愿意用</h5></div>
+    <div class="flow-step"><div class="flow-num">3</div><h5>证明集群价值</h5></div>
+    <div class="flow-step"><div class="flow-num">4</div><h5>获得更多算力与投入</h5></div>
+    <div class="flow-step"><div class="flow-num">5</div><h5>评估与编排更完善</h5><p>→ 回到 1</p></div>
+  </div>
+</section>
+
+<!-- ===== 根本问题 ===== -->
+<section id="problem">
+  <h2>二、长任务到底死在哪里</h2>
+  <p class="muted">失败往往不来自「某一次 JSON 少了括号」，而来自结构性问题。详细根因分析见 <a href="./deep-research-maximize-llm-quality.md">deep-research-maximize-llm-quality.md</a> §一。</p>
+
+  <h3>2.1 三条第一性原理约束（根因）</h3>
+  <table>
+    <tr><th>约束</th><th>本质</th><th>长任务下的表现</th></tr>
+    <tr>
+      <td><strong>R1</strong> 训练/使用目标错位</td>
+      <td>训练是 P(next_token|prefix) 的单步贪心；使用要求多步全局规划</td>
+      <td>思考不够深入、草率作答</td>
+    </tr>
+    <tr>
+      <td class="warn"><strong>R2</strong> 单向生成不可逆</td>
+      <td>因果掩码使输出一旦落定即不可改；思考与输出共用一条序列</td>
+      <td><strong>推理链错误雪崩</strong>（0.9<sup>20</sup> = 12%）、Agent 过早完成</td>
+    </tr>
+    <tr>
+      <td><strong>R3</strong> 知识以隐式分布编码</td>
+      <td>事实存在权重的"印象"而非可寻址档案中</td>
+      <td>幻觉（生成不存在的 API）、长上下文遗忘</td>
+    </tr>
+  </table>
+
+  <div class="callout callout-warn">
+    <strong>关键 ROI 排序</strong>（deep-research §一）：<strong>阻断雪崩（R2）和防止遗忘的 ROI 高于单纯提升单步深度（R1）。</strong> 因此投入应向"在链路中间插入检测与修正节点"倾斜，而不是继续堆单步质量。
+  </div>
+
+  <h3>2.2 四种具体失败模式（R2 为主）</h3>
+  <div class="card-grid">
+    <div class="card card-warn">
+      <h4>失败模式 1：一次做太多 <span class="muted">(R2)</span></h4>
+      <p>Agent 试图一次完成整个任务 → 上下文耗尽 → 留下半成品 → 下一 session 无法接续。</p>
+    </div>
+    <div class="card card-warn">
+      <h4>失败模式 2：过早宣布完成 <span class="muted">(R1+R2)</span></h4>
+      <p>看到已有进展就认为「差不多了」→ 未对照验收标准 → 实际功能残缺。</p>
+    </div>
+    <div class="card card-warn">
+      <h4>失败模式 3：长链误差累积 <span class="muted">(R2 核心)</span></h4>
+      <p>单步小错在多步后累积放大。长链路中<strong>未被捕获</strong>的错误有雪球效应——因此在链路中间<strong>插入检测与修正节点</strong>（评估器、测试、lint、<strong>Supervisor</strong>）的价值极大。</p>
+    </div>
+    <div class="card card-warn">
+      <h4>失败模式 4：自我评估偏松 <span class="muted">(R1)</span></h4>
+      <p>模型倾向于肯定自己的产出，漏掉明显问题。Anthropic 原话：<em>"confidently praising the work—even when quality is obviously mediocre."</em></p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>因此</strong>，Harness Engineering 的本质是：为模型提供 <strong>记忆、计划、事中督导、事后评估、工具验证与反馈闭环</strong>——而不仅是更好的单条提示词。
+  </div>
+</section>
+
+<!-- ===== 核心洞见 ===== -->
+<section id="insight">
+  <h2>三、核心洞见（外部研究 + 内部推演）</h2>
+
+  <h3>洞见 1：Harness 对表现影响极大</h3>
+  <div class="card card-accent">
+    <p>Anthropic 展示：同一模型在不同 Agent 系统/工具链下表现差异可达 <strong>数倍</strong>。</p>
+    <p class="muted">注意归因：这里的「Harness」涵盖<strong>整个 Agent 系统</strong>（工具链、多 Agent 编排、提示设计、评估循环），不仅是 Proxy 层格式修复。差距主要来自 <strong>Agent 架构与工具集成</strong>。</p>
+    <p><strong>→ 投入 Agent 侧 Harness 的回报可能大于单纯换一个更强的模型。</strong></p>
+  </div>
+
+  <h3>洞见 2：独立评估器是最大杠杆</h3>
+  <div class="card card-accent">
+    <p>把「写代码」和「判代码」分开，比让生成器自我批评<strong>有效得多</strong>。</p>
+    <p><strong>但评估器的核心不是「LLM 读代码给意见」</strong>——Anthropic 的 Evaluator 通过 Playwright 打开实际页面、点击交互、查 API/数据库。评估质量来自 <strong>「工具验证 + LLM 判断」的组合</strong>。</p>
+  </div>
+
+  <h3>洞见 2.5：Supervisor（事中）和 Evaluator（事后）不是替代关系 <span class="tag tag-p0">新</span></h3>
+  <div class="card card-gold">
+    <p><strong>deep-research §四 的硬证据</strong>：</p>
+    <ul style="margin:8px 0 8px 20px">
+      <li>模型"自行审查"自己的逻辑 ❌ <strong>大多无效</strong>——确认偏差</li>
+      <li>"多轮自我修正"（&gt; 2 轮）❌ <strong>可能有害</strong>——错误方向自我强化</li>
+    </ul>
+    <p>这意味着：Evaluator 在 feature 完成后判刑<strong>已经太晚</strong>。必须在 worker 执行过程中就有独立视角 + 有权切换策略的干预层——<strong>这就是 Supervisor 的位置</strong>。</p>
+    <p class="muted">Evaluator 是门禁；Supervisor 是副驾驶。两者是"前防 + 后审"的两道关，不替代。</p>
+  </div>
+
+  <h3>洞见 3：结构化产物是跨 session 桥梁</h3>
+  <div class="card card-accent">
+    <p>feature_list（JSON）、progress 文件、git history——这些机器可读的产物让新 session 能<strong>精确接续</strong>，比自然语言聊天记录可靠得多。</p>
+  </div>
+
+  <h3>洞见 4：Harness 应随模型变强而简化</h3>
+  <div class="card card-accent">
+    <p>每个 Harness 组件都编码了「模型做不好什么」的假设。模型升级后要重新验证——<strong>Build to Delete</strong>。</p>
+    <p class="muted">2026 年 6 月升级 Qwen3.6 / MiniMax2.7 时，当前很多补丁可能应被删除。</p>
+  </div>
+
+  <h3>优先级修正</h3>
+  <table>
+    <tr><th>维度</th><th>早期侧重</th><th>修正后侧重</th><th>原因</th></tr>
+    <tr>
+      <td>主战场</td>
+      <td>Proxy 层格式修复 + BoN</td>
+      <td><strong>Agent 框架层</strong>多 Agent + 结构化产物</td>
+      <td>长任务主要死因是计划与验证，不是单次格式</td>
+    </tr>
+    <tr>
+      <td>第一优先级</td>
+      <td>Need 3（可靠执行）</td>
+      <td><strong>Need 5/4</strong>（计划/独立验证）</td>
+      <td>122B 已具备基础工具能力时，计划与评估回报更高</td>
+    </tr>
+    <tr>
+      <td>算力投向</td>
+      <td>并行生成（BoN）</td>
+      <td><strong>评估与反馈闭环</strong></td>
+      <td>有记忆的反馈比无记忆的多采样在信息论上更优</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ===== 重点做什么 ===== -->
+<section id="what">
+  <h2>四、重点做什么</h2>
+
+  <h3>4.1 模型的 8 个基本需要 × 优先级</h3>
+  <table>
+    <tr><th>梯队</th><th>Need</th><th>说明</th><th>主要建设位置</th></tr>
+    <tr>
+      <td><span class="tag tag-p0">第一</span></td>
+      <td><strong>5 — 计划与增量</strong></td>
+      <td>「一次做太多」「过早完成」是两大杀手</td>
+      <td>Agent：Planner、feature 清单、一次一 feature</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p0">第一</span></td>
+      <td><strong>4 — 独立验证</strong></td>
+      <td>自评偏松；独立 Evaluator + 工具验证是唯一可靠门禁</td>
+      <td>Agent：Evaluator 工具链；Proxy：评估增强</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p0">第一</span></td>
+      <td><strong>1 — 跨窗口记忆</strong></td>
+      <td>结构化产物是跨 session 桥梁</td>
+      <td>Agent：产物契约</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p1">第二</span></td>
+      <td><strong>7 — 单步质量</strong></td>
+      <td>链式误差仍在；手段：评估闭环 + 角色化思考预算</td>
+      <td>Proxy + Agent</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p1">第二</span></td>
+      <td><strong>8 — 可观测</strong></td>
+      <td>无指标 = 盲调</td>
+      <td>独立服务 + Proxy 日志</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p1">第二</span></td>
+      <td><strong>3 — 可靠执行</strong></td>
+      <td>仍重要；基础协议/修复已就绪，不必无限堆</td>
+      <td>Proxy：适配与修复</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p2">第三</span></td>
+      <td>2 — 上下文 / 6 — 恢复</td>
+      <td>增量模式本身降低了破坏面</td>
+      <td>Agent + 基础设施</td>
+    </tr>
+  </table>
+
+  <h3>4.2 算力投向：评估优先于冗余生成</h3>
+  <table>
+    <tr><th>算力用途</th><th>优先级</th><th>理由</th></tr>
+    <tr><td><strong>Evaluator 评估（工具产出 + LLM 判断）</strong></td><td><span class="tag tag-p0">最高</span></td><td>独立评估是最大杠杆；评估请求短、GPU 时间少、杠杆大</td></tr>
+    <tr><td><strong>Planner 任务分解</strong></td><td><span class="tag tag-p0">高</span></td><td>好的计划决定后续所有工作方向</td></tr>
+    <tr><td>角色化思考预算</td><td><span class="tag tag-p1">中</span></td><td>复杂步骤给更多 thinking tokens</td></tr>
+    <tr><td>空闲时段回归评估</td><td><span class="tag tag-p1">中</span></td><td>持续校准质量基线</td></tr>
+    <tr><td>BoN 并行采样</td><td><span class="tag tag-p2">低</span></td><td>仅在评估器反复不通过时的补充手段</td></tr>
+  </table>
+
+  <div class="callout">
+    <strong>核心转变</strong>：从「生成 N 个选最好」→「生成 1 个 → 工具验证 → 独立 LLM 评估 → 基于反馈改进 → 再验证」。<br>
+    有记忆的评估-反馈循环比无记忆的 Best-of-N 更高效：每轮反馈都缩小搜索空间。
+  </div>
+</section>
+
+<!-- ===== 架构 ===== -->
+<section id="arch">
+  <h2>五、总体架构：三层分工 + Supervisor 总线</h2>
+
+  <div class="diagram"><span class="hl">┌─────────────────────────────────────────────────────────────────┐</span>
+<span class="hl">│  Agent 框架层（核心战场）                                         │</span>
+<span class="hl">│                                                                 │</span>
+<span class="hl">│    Planner ──→ Generator ──→ Evaluator ──→ (循环)               │</span>
+<span class="hl">│       │            │             │                              │</span>
+<span class="hw">       │  ┌─────────┴─────────────┴───────────────────────┐       </span>
+<span class="hw">       └──┤  Supervisor 总线（事中干预 · 跨三角色）         │←─     </span>
+<span class="hw">          │  触发 → 决策 → 动作 → 策略切换                  │       </span>
+<span class="hw">          │  worker_request · loop · tool_fail · logprob_drop │     </span>
+<span class="hw">          │  budget_force · rag_inject · devil_advocate        │    </span>
+<span class="hw">          │  [2 轮硬规则] → escalate: bon/ensemble/rag/model   │    </span>
+<span class="hw">          └───────────────────────────────────────────────────┘    </span>
+<span class="hl">│    feature_list.json   commit+progress   工具验证+LLM判断        │</span>
+<span class="hl">│    结构化产物           增量交付          独立反馈                 │</span>
+<span class="hl">└───────────────────────────┬─────────────────────────────────────┘</span>
+                            │ 每次模型调用经 Proxy
+<span class="hl2">┌───────────────────────────┴─────────────────────────────────────┐</span>
+<span class="hl2">│  Proxy / API Gateway（编排与放大）                                │</span>
+<span class="hl2">│                                                                 │</span>
+<span class="hl2">│  【数据底座】完整 body · logprobs · reasoning · finish_reason    │</span>
+<span class="hl2">│  【事中】Supervisor 注入 · 策略路由 · micro_consult              │</span>
+<span class="hl2">│  【事后】Evaluator 多视角扇出 · 严格度校准 · 优先级调度          │</span>
+<span class="hl2">│  【基础】角色感知思考预算 · 模型路由与降级 · 协议适配             │</span>
+<span class="hl2">└───────────────────────────┬─────────────────────────────────────┘</span>
+                            │
+┌───────────────────────────┴─────────────────────────────────────┐
+│  独立服务（数据飞轮）                                             │
+│  仪表盘 · Golden Set · 回归评估 · 质量趋势 · 模型升级对比        │
+└─────────────────────────────────────────────────────────────────┘</div>
+
+  <div class="callout">
+    <strong>架构语义</strong>：Supervisor 不是"第四个 Agent"，而是<strong>横跨三角色的事中总线</strong>——任何 worker（planner / generator / evaluator）在执行过程中都可以被同一套 Supervisor 机制督导。它是 Proxy 层的一等公民，详见 <a href="#supervisor">第六章</a>。
+  </div>
+
+  <h3>5.1 Agent 框架层</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>Planner</h4>
+      <p>高层需求 → 结构化 feature 列表（JSON）。专注产品与高层技术设计，<strong>不过早细化实现</strong>。</p>
+      <p class="muted">对 Proxy：role=planner，高思考预算</p>
+    </div>
+    <div class="card">
+      <h4>Generator</h4>
+      <p>一次一个 feature → 代码 + commit + progress。增量交付，每块留痕。</p>
+      <p class="muted">对 Proxy：role=generator，按 intent 分配预算</p>
+    </div>
+    <div class="card">
+      <h4>Evaluator</h4>
+      <p><strong>先跑工具</strong>（测试/lint/浏览器）→ 把工具产出 + 代码交给 LLM 判断 → 输出可定位的缺陷列表与修改建议。</p>
+      <p class="muted">对 Proxy：role=evaluator，触发多视角扇出 + 严格度校准</p>
+    </div>
+  </div>
+
+  <div class="callout-warn callout">
+    <strong>关键约束</strong>：Evaluator 的价值 = 工具验证 + LLM 判断。<strong>纯 LLM 静态审阅不是评估，是另一轮猜测。</strong>Agent 层必须先落地工具链（测试、lint、浏览器自动化），Proxy 层的评估增强才有意义。
+  </div>
+
+  <h3>5.2 Proxy 层能力</h3>
+  <table>
+    <tr><th>能力</th><th>优先级</th><th>做什么</th><th>不做什么</th></tr>
+    <tr>
+      <td>角色感知思考预算</td>
+      <td><span class="tag tag-p0">P0</span></td>
+      <td>按 role + intent 设置 max_thinking_tokens；Evaluator/Planner 高，Generator 按需</td>
+      <td>不硬编码数值——必须在 Golden Set 上实测调参</td>
+    </tr>
+    <tr>
+      <td>评估器增强</td>
+      <td><span class="tag tag-p0">P0</span></td>
+      <td>多视角扇出、严格度校准（few-shot + 系统提示）、优先级调度</td>
+      <td>不替代工具验证——LLM 评估建立在工具产出之上</td>
+    </tr>
+    <tr>
+      <td>可观测</td>
+      <td><span class="tag tag-p1">P1</span></td>
+      <td>统一 trace（role/task/feature id）、按角色指标</td>
+      <td>不做业务层仪表盘（独立服务负责）</td>
+    </tr>
+    <tr>
+      <td>模型路由</td>
+      <td><span class="tag tag-p1">P1</span></td>
+      <td>Qwen ↔ MiniMax 切换、故障降级</td>
+      <td>不做智能实时路由——起步用规则，后续靠数据</td>
+    </tr>
+    <tr>
+      <td>BoN / 约束解码</td>
+      <td><span class="tag tag-p2">可选</span></td>
+      <td>仅在高价值节点或评估失败时启用</td>
+      <td>不做全局默认 BoN；不对 122B 全面约束解码</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ===== 监督者模式 ===== -->
+<section id="supervisor">
+  <h2>六、监督者模式：R2 中途干预总纲</h2>
+  <p>基于 <a href="./deep-research-maximize-llm-quality.md">deep-research</a> §一 / §四：R2（单向生成不可逆）约束下，<strong>阻断雪崩的 ROI 高于提升单步深度</strong>，且 worker 自我修正 &gt; 2 轮反而有害。Supervisor 就是把"事中干预手段"收拢到同一条总线上的统一执行层。</p>
+  <p class="muted">完整设计：<a href="./supervisor-mode-design.md">supervisor-mode-design.md</a> · 对齐官方方案：<a href="https://claude.com/blog/the-advisor-strategy" target="_blank" rel="noopener">Anthropic Advisor Strategy</a></p>
+
+  <div class="callout callout-warn" style="background: linear-gradient(135deg, rgba(81,207,102,.08), rgba(108,140,255,.06)); border-left-color: var(--good)">
+    <strong>执行顺序（2026-04 重排）</strong>：<br>
+    <span style="color:var(--good)">① <strong>P0.5a · Pull 路径（复刻 Anthropic Advisor Strategy）</strong> = 第一优先级</span>——已被官方 benchmark（SWE-bench +2.7 pp · 成本 -11.9%；Haiku + Opus advisor BrowseComp 翻倍），工程改动最小，独立可验。<br>
+    <span style="color:var(--accent)">② P0.5b · Push 兜底 + 2 轮止损硬规则</span> = 增量防线，补住 executor "自信地错"没主动求助的场景。<br>
+    <span class="muted" style="font-size: 13px">详见 <a href="#supervisor">§6.5 实施排期</a> 与 <a href="#supervisor">§6.6 官方方案对齐</a>。</span>
+  </div>
+
+  <div class="callout">
+    <strong>一句话</strong>：Supervisor <span class="warn">不是</span>第四个角色，是<strong>横跨 Planner / Generator / Evaluator 的事中总线</strong>。任何 worker 在执行过程中都可被同一套 Supervisor 督导——<strong>pull（它主动求助）</strong>与 <strong>push（我们主动打断）</strong>两条触发路径并用。
+  </div>
+
+  <h3>6.1 三层分工（事中 / 事后 / 离线）</h3>
+  <table>
+    <tr><th>层</th><th>时机</th><th>主要职责</th><th>对应 deep-research</th></tr>
+    <tr>
+      <td class="warn"><strong>Supervisor</strong></td>
+      <td>worker 执行<strong>中</strong></td>
+      <td>信号触发 + 短建议 + <strong>策略切换权</strong></td>
+      <td>B2.1 / 2.3 / 2.4 / 2.5 · C2.1 / 2.2 · A2.3 · A1.4 / 1.5</td>
+    </tr>
+    <tr>
+      <td>Evaluator</td>
+      <td>feature 完成<strong>后</strong></td>
+      <td>工具验证 + 多视角评估 + 阻断门禁</td>
+      <td>B2.2 + 多视角扇出</td>
+    </tr>
+    <tr>
+      <td>Golden Set</td>
+      <td>离线 / 空闲</td>
+      <td>能力漂移监控、模型升级对比</td>
+      <td>协同 5 / 6</td>
+    </tr>
+  </table>
+
+  <h3>6.2 能力矩阵：触发 → 动作 → 策略切换</h3>
+
+  <h4>① 触发源（Signal Layer）</h4>
+  <table>
+    <tr><th>触发源</th><th>类别</th><th>P0 数据依赖</th></tr>
+    <tr><td>worker_request</td><td>手动</td><td>无</td></tr>
+    <tr><td>loop_detected / tool_failure_streak / no_progress / off_spec_drift</td><td>行为</td><td>已有工具日志</td></tr>
+    <tr><td>context_bloat</td><td>配额</td><td>已有 token 计数</td></tr>
+    <tr><td class="good"><strong>logprob_drop</strong> 🔑</td><td>推理质量（C2.1）</td><td><strong>需采集 logprobs</strong></td></tr>
+    <tr><td class="good"><strong>token_confidence_gate</strong> 🔑</td><td>推理质量（C2.2）</td><td>同上 + 结构化 tag</td></tr>
+    <tr><td class="good"><strong>thinking_budget_approach</strong></td><td>预算（A2.3）</td><td>需保留 reasoning stream</td></tr>
+    <tr><td>gate:&lt;name&gt;</td><td>硬门禁</td><td>Agent 约定</td></tr>
+  </table>
+  <p class="muted">🔑 标记的三条是相对现有设计的新增——它们是 Supervisor 从"事后补丁"升级为"事中骨架"的关键信号，前提是 P0 就开始采集 logprobs。</p>
+
+  <h4>② 干预动作（verdict）</h4>
+  <table>
+    <tr><th>verdict</th><th>语义</th><th>对应 deep-research 技术</th></tr>
+    <tr><td>continue / adjust</td><td>走 / 给 1-3 条 hint</td><td>B2.1</td></tr>
+    <tr><td><strong>budget_force</strong></td><td><code>&lt;/think&gt;</code> 边界注入 "Wait, let me reconsider"</td><td>A2.3（s1 论文 AIME24 +7 pp：50%→57%）</td></tr>
+    <tr><td><strong>rar_inject</strong></td><td>让 worker 先用自己话重述问题再继续</td><td>A1.5（+3-8%）</td></tr>
+    <tr><td><strong>devil_advocate</strong></td><td>注入"假设方案已失败，3 个最可能原因"</td><td>A1.4（-45% 无效重试）</td></tr>
+    <tr><td><strong>wm_refresh</strong></td><td>Working Memory JSON 重注入并要求比对</td><td>D1.2 / D2.2</td></tr>
+    <tr><td><strong>rag_inject</strong></td><td>触发领域文档检索并注入</td><td>C1.5（领域幻觉 -40-60%）</td></tr>
+    <tr><td>pivot / abort</td><td>换思路 / 回 Planner 重分解</td><td>B1 · B3</td></tr>
+    <tr><td class="warn"><strong>escalate_strategy</strong></td><td><strong>策略切换</strong>（见下）</td><td>B1 + B4</td></tr>
+  </table>
+  <p class="warn">⚠ 硬约束：Supervisor 输出 <strong>禁止</strong> 包含 <code>code</code> / <code>diff</code> / <code>file_patch</code> 字段。只下判断 + 短建议，不接管生成。schema 违规直接丢弃并记 <code>schema_violation=true</code>。</p>
+
+  <h4>③ 策略切换（2 轮上限硬规则）</h4>
+  <div class="callout callout-warn">
+    <strong>硬编码规则（deep-research §四固化）</strong>：同一 feature 内，针对同一错误类型的 adjust / budget_force / wm_refresh / rar_inject 合计 <strong>≥ 2 次</strong> 后，Supervisor <strong>必须</strong>输出 <code>escalate_strategy</code>，不得继续 adjust。
+    <p class="muted" style="margin-top:8px">这条规则直接把"多轮自我修正可能有害"的研究结论固化到协议里，防止 Agent 在错误方向上无限循环。</p>
+  </div>
+  <table>
+    <tr><th>strategy</th><th>语义</th><th>何时选它</th></tr>
+    <tr><td><code>bon_rerun</code></td><td>Best-of-N 并行采样重试</td><td>同一点反复卡住，怀疑是采样偶然性</td></tr>
+    <tr><td><code>ensemble_rerun</code></td><td>Prompt Ensembling + Response Merging</td><td>存在多个合理方向，单路径质量不稳</td></tr>
+    <tr><td><code>rag_gated_rerun</code></td><td>强制 RAG 检索后重试</td><td>怀疑是领域知识缺失 / 幻觉 API</td></tr>
+    <tr><td><code>model_upgrade</code></td><td>路由到更强模型（MiniMax / Claude）</td><td>工具事实显示是能力边界</td></tr>
+    <tr><td><code>human_escalation</code></td><td>标记人工介入</td><td>连续两次策略切换仍失败</td></tr>
+  </table>
+
+  <h3>6.3 Supervisor 模型档位</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>同模型 supervisor</h4>
+      <p>supervisor = worker 模型，靠不同 system prompt 切换</p>
+      <p class="muted">P0.5 起步；零额外成本</p>
+    </div>
+    <div class="card">
+      <h4>异模型 supervisor</h4>
+      <p>worker=Qwen 122B，supervisor=MiniMax / Claude</p>
+      <p class="muted">高风险节点、gate 触发</p>
+    </div>
+    <div class="card card-gold">
+      <h4>小模型 sanity supervisor ⭐</h4>
+      <p>B2.3 Speculative Verification：小模型并行 sanity check，方向性错误时早期 abort</p>
+      <p class="muted">EASD 反直觉：同时加速 + 提质（+3.54 分）</p>
+    </div>
+  </div>
+
+  <h3>6.4 Supervisor 对 P0 的硬要求 <span class="tag tag-p0">关键</span></h3>
+  <div class="callout callout-warn">
+    <strong>P0 不能只"留坑"，必须从现在就开始采：</strong>
+    <table style="margin-top:10px">
+      <tr><th>数据</th><th>为什么 P0 就要</th><th>不采的后果</th></tr>
+      <tr><td>Token-level logprobs</td><td>C2.1 / C2.2 触发器唯一信号源</td><td>整条"推理质量触发线"起不来</td></tr>
+      <tr><td>Reasoning stream（<code>&lt;think&gt;</code> 内容）</td><td>budget_force / thinking_budget_approach 的前提</td><td>只能静态硬编码 Budget Forcing</td></tr>
+      <tr><td>upstream finish_reason</td><td>区分自然结束 / 截断 / <code>&lt;/think&gt;</code> 收尾</td><td>无法正确触发 budget 相关干预</td></tr>
+      <tr><td>完整 header JSON（不是摘要）</td><td>P1 回放时要还原 X-Worker-Retry-Count 等状态</td><td>trace 回放失真</td></tr>
+    </table>
+    <p style="margin-top:10px">省掉这一步 = 砍掉 P1 最值钱的 C2 推理质量监控线，返工代价巨大。详见 <a href="./claude-code-proxy-p0-plan.md">claude-code-proxy-p0-plan.md</a> §6/§10。</p>
+  </div>
+
+  <h3>6.5 实施排期（以"已被验证方案"为第一优先级）<span class="tag tag-p0">2026-04 重排</span></h3>
+  <div class="callout callout-warn" style="margin-top:6px">
+    <strong>优先级铁律</strong>：先做已经被 Anthropic 官方 benchmark 过的 <strong>Pull 路径（advisor tool）</strong>拿到"提质 + 降本"基本盘，再做我们自己增量的 Push 兜底 / 止损规则 / logprob 触发。<br>
+    <span class="muted" style="font-size: 13px">理由：Pull 路径工程改动最小、有官方数据背书（SWE-bench +2.7 pp · 成本 -11.9%），风险最低回报最高；Push 是对 Pull 兜不住的"自信地错"的增量防线，依赖 P0 采集的 logprobs 数据就绪，自然排在 P1。</span>
+  </div>
+  <div class="timeline">
+    <div class="tl-item done">
+      <div class="tl-title">P0（3-5 天）— 数据底座</div>
+      <div class="tl-desc">透明代理 + 完整数据采集（logprobs / reasoning / 完整 header / finish_reason）+ trace 字段预留（parent_trace_id / span_type / role）。<strong>这是 P1 Push 路径能启动的前提</strong>。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-title">P0.5a（紧随 P0，3-5 天）— <span style="color:var(--good)">Pull 路径 · 复刻 Advisor Strategy</span> <span class="tag tag-p0">第一优先级 · 已验证</span></div>
+      <div class="tl-desc">
+        在 Agent 侧给 executor 注册 <code>request_supervisor_consult</code> 虚拟工具（语义对齐 Anthropic <code>advisor_20260301</code>）+ 顾问硬边界（不调工具 / 不出用户可见内容 / 只返 plan-correction-stop）+ <code>max_uses</code> 封顶。<br>
+        <span class="muted">验收：SWE-bench Multilingual / BrowseComp 子集上复现官方数据量级（+2.7 pp · 成本不升反降）；Golden Set 监控 consult 采纳率 &gt; 50%、越权率 &lt; 5%。</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-title">P0.5b（并行，2-3 天）— Manual Push Supervisor（兜底脚手架）</div>
+      <div class="tl-desc">
+        <code>X-Supervisor-Mode: manual</code> + schema 强制（禁 code 字段、≤512 token）+ <strong>2 轮强制 escalate 硬规则</strong>。<br>
+        <span class="muted">用途：Pull 路径依赖 executor "知道自己不确定"；本阶段人工触发 push 场景先把协议跑通，为 P1.0 自动化铺路。</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-title">P1.0（1-2 周）— Auto Push 上线</div>
+      <div class="tl-desc">Auto triggers（tool_failure_streak / loop_detected / no_progress）+ budget_force + wm_refresh + devil_advocate 条件注入。同步把 pull 工具使用数据纳入 Golden Set，观察 pull 命中与 push 信号的互补性。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-title">P1.1（1-3 月）— logprob 触发 + 局部升级顾问</div>
+      <div class="tl-desc">logprob_drop / token_confidence_gate 触发（C2.1 / C2.2）+ rag_inject + 小模型 sanity supervisor（B2.3）+ <code>escalate_strategy=upgrade_advisor</code>（<strong>只升 advisor 不换 worker</strong>，对齐 Haiku + Opus advisor 模型）。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-title">P1.2（3-6 月）— 门禁 + ensemble + 自动路由</div>
+      <div class="tl-desc">Hierarchical Gates（L0 / L1 / L2 三级门禁）+ ensemble_rerun（B1.7 + B1.8）+ ThinkPRM-14B 独立端点（B4.1）+ 自动 model_upgrade / upgrade_advisor 路由。</div>
+    </div>
+  </div>
+
+  <h3>6.6 与 Anthropic Advisor Strategy 对齐 <span class="tag tag-p0">新增 2026-04</span></h3>
+  <p class="muted" style="margin-top:-4px">
+    2026-04-09 Anthropic 发布 <a href="https://claude.com/blog/the-advisor-strategy" target="_blank" rel="noopener">The advisor strategy: Give agents an intelligence boost</a>，以及原生 <code>advisor_20260301</code> 工具。与我们设计高度同构，值得对标后查漏补缺。
+  </p>
+
+  <h4>① 核心机制等价，术语不同</h4>
+  <table>
+    <tr><th>维度</th><th>我们（Supervisor）</th><th>Anthropic（Advisor）</th></tr>
+    <tr><td>角色定位</td><td>事中干预总线</td><td>executor 遇到拿不准时请教的顾问</td></tr>
+    <tr><td>硬边界</td><td>禁 <code>code</code>/<code>diff</code>，输出 ≤ 512 token</td><td class="good">✅ 一致：不调工具、不出用户可见内容、只返回 plan / correction / stop</td></tr>
+    <tr><td>单请求封装</td><td>同一 <code>/v1/messages</code> 内完成（X-Supervisor-* header 触发）</td><td class="good">✅ 一致：同一 <code>/v1/messages</code>，<code>advisor_20260301</code> 工具声明</td></tr>
+    <tr><td>上限控制</td><td>2 轮强制 escalate 硬规则</td><td><code>max_uses</code>（如 3）封顶；未定义"2 轮硬规则"</td></tr>
+  </table>
+
+  <h4>② 触发方式互补：pull + push 双路径</h4>
+  <div class="diagram">
+                  ┌─────────────────────┐
+<span class="hl">  Pull 路径   </span>  │  executor (worker)  │
+<span class="hl">  （Anthropic）</span> │  自己意识到不确定    │──┐
+                  └─────────────────────┘  │  主动调用 advisor 工具
+                                           ▼
+                              ┌──────────────────────┐
+                              │   Advisor/Supervisor │
+                              │   返回 plan/correction│
+                              └──────────────────────┘
+                                           ▲
+                  ┌─────────────────────┐  │ 基于外部信号强制介入
+<span class="hw">  Push 路径   </span>  │  Proxy 层观察者      │──┘
+<span class="hw">  （我们增量）</span> │  logprob / loop / 工具失败│
+                  └─────────────────────┘</div>
+  <div class="callout">
+    <strong>Pull 为什么不够？</strong> Anthropic 的 advisor 需要 executor 自己意识到"我拿不准"。但 R2 约束下 LLM 常常<strong>自信地错</strong>——logprob 已经骤降了、已经在原地打转了、工具已经连续失败了，模型自己却毫无察觉。<strong>Push 路径是对 pull 的强兜底</strong>，也是我们相对官方方案的关键增量。
+  </div>
+
+  <h4>③ 官方 benchmark 数据（可直接引用说服预算方）</h4>
+  <table>
+    <tr><th>基准</th><th>配置</th><th>效果</th></tr>
+    <tr>
+      <td>SWE-bench Multilingual</td>
+      <td>Sonnet 4.6 + Opus 4.6 advisor vs Sonnet 4.6 solo</td>
+      <td class="good"><strong>+2.7 pp</strong> 分数；<strong>-11.9%</strong> 成本</td>
+    </tr>
+    <tr>
+      <td>BrowseComp</td>
+      <td>Haiku 4.5 + Opus 4.6 advisor vs Haiku 4.5 solo</td>
+      <td class="good"><strong>19.7% → 41.2%</strong>（翻倍多），比 Sonnet solo 便宜 85%</td>
+    </tr>
+    <tr>
+      <td>Terminal-Bench 2.0</td>
+      <td>Sonnet + Opus advisor</td>
+      <td class="good">分数提升 + 成本更低</td>
+    </tr>
+  </table>
+  <div class="callout callout-warn">
+    <strong>叙事翻转</strong>：v1 presentation 里"空余算力换质量"的口径需要调整——<strong>事中早介入往往比事后返工更省钱</strong>，因为它避免了失败重试、超长生成、长链雪崩。对预算方讲"提质 + 降本双收"比"花更多算力"更有说服力。
+  </div>
+
+  <h4>④ "局部升级顾问" 优于 "全程升级模型"</h4>
+  <p>Haiku + Opus advisor 的数据（19.7% → 41.2%）意味着：<strong>不必把整条生成链换成 Opus 级模型</strong>，只在关键决策点请教一下就能拿到大部分收益。这直接修正了我们 <code>escalate_strategy=model_upgrade</code> 的实现思路：</p>
+  <ul style="margin: 0 0 16px 24px">
+    <li><strong>旧思路</strong>：<code>model_upgrade</code> = 把 worker 从 Qwen 122B 切到 MiniMax / Claude 全程跑</li>
+    <li><strong>新思路</strong>：<code>model_upgrade</code> = 保持 Qwen 122B 作为 worker，仅把 supervisor 档位切到 MiniMax / Claude 级别，<strong>只在 consult 瞬间消耗强模型</strong></li>
+  </ul>
+
+  <h4>⑤ 对排期的影响 → 详见 <a href="#supervisor">§6.5 重排</a></h4>
+  <div class="callout">
+    <strong>结论</strong>：Pull 路径（复刻 advisor tool）提为 <strong>P0.5a · 第一优先级</strong>——它是官方已 benchmark 过的方案，工程改动最小（一个虚拟工具 + 硬边界 prompt + <code>max_uses</code>），几天内可上线拿到效果数据。我们自己的 Push 兜底 / 止损规则 / logprob 触发作为 <strong>P0.5b / P1</strong> 增量——它们是 Pull 兜不住的"自信地错"场景的差异化防线。<br>
+    <span class="muted" style="font-size: 13px">原则：先复刻已被验证的方案拿到基本盘，再做差异化增量。不要两步捆成一个大版本——P0.5a 必须能独立上线、独立验证。</span>
+  </div>
+  <p class="muted" style="font-size: 13px; margin-top: 10px">其余细节（<code>escalate_strategy=upgrade_advisor</code> 档位、Pull 与 Push 数据对照、Golden Set 扩项）并入 §6.5 时间线描述。</p>
+</section>
+
+<!-- ===== 评估器增强 ===== -->
+<section id="eval">
+  <h2>七、评估器增强（事后门禁 · Proxy 层能力）</h2>
+  <p>Supervisor 处理事中，Evaluator 处理事后：把「一个 LLM 做一次评估」升级为「多个视角并行评估 + 校准 + 聚合」。</p>
+
+  <h3>7.1 正确的评估链路</h3>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <h5>Agent 跑工具</h5>
+      <p>测试、lint、浏览器</p>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <h5>Agent 组装请求</h5>
+      <p>代码 + 工具产出 → Proxy</p>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <h5>Proxy 扇出</h5>
+      <p>注入维度模板 + 校准</p>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <h5>N 路并行 LLM</h5>
+      <p>各维度独立审查</p>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">5</div>
+      <h5>Proxy 聚合</h5>
+      <p>最严原则 + 去重</p>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">6</div>
+      <h5>返回 Agent</h5>
+      <p>结构化评估报告</p>
+    </div>
+  </div>
+
+  <h3>7.2 评估维度</h3>
+  <table>
+    <tr><th>维度</th><th>LLM 角色</th><th>输入应包含</th><th>注意</th></tr>
+    <tr><td><strong>功能完整性</strong></td><td>比对验收清单与测试结果</td><td>测试报告、验收 checklist</td><td>无测试报告时 LLM 只能静态推断，价值大打折扣</td></tr>
+    <tr><td><strong>边缘健壮性</strong></td><td>识别未覆盖的边界条件</td><td>测试覆盖率、错误处理代码</td><td>LLM <strong>不能</strong>实际运行边缘用例——只能指出缺失防御</td></tr>
+    <tr><td><strong>代码质量</strong></td><td>审查结构、命名、重复</td><td>lint 输出、diff</td><td>纯静态分析，LLM 相对擅长</td></tr>
+    <tr><td>安全性（可选）</td><td>识别常见漏洞模式</td><td>代码 diff</td><td>对已知模式有效，对新型攻击无效</td></tr>
+    <tr><td>规格一致性（可选）</td><td>对比 spec 与实现</td><td>原始 spec</td><td>长任务中模型容易「创造性偏离」</td></tr>
+  </table>
+
+  <h3>7.3 严格度校准：Few-shot 示例 + 系统提示</h3>
+  <div class="card-grid">
+    <div class="card card-gold">
+      <h4>层 1：Few-shot 示例（主力）</h4>
+      <p>在评估请求中附带 2-3 个标注示例，展示「这段代码有什么问题、应该给什么判定」。</p>
+      <p class="muted">Anthropic 实际使用的就是这种方法。仅靠"你要严格"等抽象指令效果有限。</p>
+    </div>
+    <div class="card">
+      <h4>层 2：系统提示（辅助）</h4>
+      <p>补充规则：报告每个 issue、测试通过≠代码正确、默认 FAIL 除非有正面证据。</p>
+    </div>
+  </div>
+
+  <h3>7.4 延迟与成本（诚实分析）</h3>
+  <table>
+    <tr><th>指标</th><th>单视角</th><th>3 视角扇出</th><th>说明</th></tr>
+    <tr><td>GPU 总时间</td><td>1x</td><td><strong>≈3x</strong></td><td>资源是共享的，总计算量增加</td></tr>
+    <tr><td>Wall-clock 延迟</td><td>T</td><td><strong>max(T₁,T₂,T₃) + T_agg</strong></td><td>集群空闲 ≈T；<span class="warn">集群忙时互相抢资源，可能 >T</span></td></tr>
+    <tr><td>评估 GPU 占比</td><td>10-20%</td><td>25-40%</td><td>空闲算力可覆盖；忙时需降级</td></tr>
+  </table>
+  <div class="callout-warn callout">
+    <strong>降级策略</strong>：监控评估请求 P95 排队等待时间。超阈值 → 自动减少维度数或关闭扇出。
+  </div>
+
+  <h3>7.5 同模型自偏好风险</h3>
+  <p>Qwen 122B 同时做 Generator 和 Evaluator 存在同族偏好。缓解：</p>
+  <div class="card-grid">
+    <div class="card"><h4>① 工具产出为主</h4><p>测试通过/失败是事实，不受偏好影响</p></div>
+    <div class="card"><h4>② Few-shot 校准</h4><p>用标注示例对齐到人类标准</p></div>
+    <div class="card"><h4>③ 交叉评估</h4><p>高风险场景用 Qwen + MiniMax 各评一次</p></div>
+    <div class="card"><h4>④ Golden Set 监控</h4><p>持续追踪偏差率</p></div>
+  </div>
+</section>
+
+<!-- ===== 推理时计算扩展 ===== -->
+<section id="compute">
+  <h2>八、推理时计算扩展：用空余算力换质量</h2>
+  <p>自有 122B 集群 MoE 10B 激活，推理成本极低。<strong>即使 3x 计算也远低于 MiniMax 单次推理</strong>。以下技术手段将空余算力系统性地转化为可靠性。</p>
+
+  <div class="metrics">
+    <div class="metric"><div class="val">10B</div><div class="label">实际激活参数 · 推理成本极低</div></div>
+    <div class="metric"><div class="val">3-10x</div><div class="label">可投入的额外计算倍数</div></div>
+    <div class="metric"><div class="val">6 种</div><div class="label">已识别的技术手段</div></div>
+  </div>
+
+  <h3>8.1 技术手段全景与优先级</h3>
+  <table>
+    <tr><th>手段</th><th>优先级</th><th>确定性</th><th>潜在回报</th><th>Proxy 投入</th><th>说明</th></tr>
+    <tr>
+      <td><strong>提示词驱动推理增强</strong></td>
+      <td><span class="tag tag-p0">P0</span></td>
+      <td>高</td><td>中高</td><td><strong>极低</strong></td>
+      <td>角色模板 + 反思注入 + Budget Forcing，不改模型不改引擎</td>
+    </tr>
+    <tr>
+      <td><strong>角色化思考预算</strong></td>
+      <td><span class="tag tag-p0">P0</span></td>
+      <td>高</td><td>中高</td><td>低</td>
+      <td>按 role + intent 设 max_thinking_tokens</td>
+    </tr>
+    <tr>
+      <td><strong>迭代精炼（带外部反馈）</strong></td>
+      <td><span class="tag tag-p0">P0</span></td>
+      <td>中高</td><td>高</td><td>低-中</td>
+      <td>「编译失败 → 注入错误信息 → 重做」而非模型自言自语</td>
+    </tr>
+    <tr>
+      <td><strong>并行验证 / 评估扇出</strong></td>
+      <td><span class="tag tag-p0">P0</span></td>
+      <td>高</td><td>高</td><td>中</td>
+      <td>多维度并行评估，已在评估器增强中详述</td>
+    </tr>
+    <tr>
+      <td>Best-of-N 并行采样</td>
+      <td><span class="tag tag-p2">可选</span></td>
+      <td>高</td><td>中</td><td>中</td>
+      <td>仅高价值节点或评估反复不通过时</td>
+    </tr>
+    <tr>
+      <td><strong>轻量版并行思考</strong>（多视角提示）</td>
+      <td><span class="tag tag-p1">实验</span></td>
+      <td>中高</td><td>中高</td><td>低-中</td>
+      <td>比纯 BoN 更好：不同视角提示引导不同解空间</td>
+    </tr>
+    <tr>
+      <td>ThinkMerge（Logit 融合）</td>
+      <td><span class="tag tag-p1">实验</span></td>
+      <td>中</td><td><strong>高</strong></td><td>高</td>
+      <td>token 级融合多条推理路径，对代码生成有独特优势</td>
+    </tr>
+    <tr>
+      <td>ParaThinker / Elastic Reasoning</td>
+      <td><span class="tag tag-p2">跟踪</span></td>
+      <td>中</td><td>极高</td><td>极高</td>
+      <td>需训练模型，长期跟踪，借鉴思路</td>
+    </tr>
+  </table>
+
+  <!-- 提示词驱动 -->
+  <h3>8.2 提示词推理增强：10 个可做的点（P0 — 投入最低见效最快）</h3>
+  <p>无需修改模型权重，无需改推理引擎。Proxy 在转发请求时<strong>注入提示片段</strong>即可。详见 <a href="./prompt-reasoning-enhancement.md">prompt-reasoning-enhancement.md</a>。</p>
+
+  <div class="callout">
+    <strong>证据基础</strong>：SCoT 在 HumanEval/MBPP 上 Pass@1 <strong>+13.79%</strong>；Devil's Advocate 在 WebArena 上无效重试 <strong>-45%</strong>；Few-shot 校准是 Anthropic 实测主力。所有手段与后续方向（思考预算、评估扇出、BoN、ThinkMerge）<strong>正交且互补</strong>。
+  </div>
+
+  <!-- 点1 角色模板 -->
+  <h4>① 角色化推理引导模板（始终注入）</h4>
+  <p>按 <code>X-Agent-Role</code> 自动在 system prompt 尾部追加对应模板。</p>
+  <div class="card-grid">
+    <div class="card card-accent">
+      <h4>Planner — 发散式 + 完备性导向</h4>
+      <p><strong>5 步法</strong>：① 枚举所有隐含能力（对抗遗漏） → ② 每个能力天真实现会出什么问题（Pre-mortem） → ③ 区分 [MVP] / [LATER]（防过度工程） → ④ 识别依赖序（避免 Generator 执行顺序错误） → ⑤ 先推理再产出 JSON</p>
+    </div>
+    <div class="card card-accent">
+      <h4>Generator — SCoT 结构化思维链</h4>
+      <p><strong>5 步法</strong>：① INPUT/OUTPUT 明确（避免实现偏移） → ② CONTROL FLOW 用顺序/分支/循环结构描述（SCoT +13.79% Pass@1） → ③ HARD PARTS 识别并描述方案 → ④ EDGE CASES 至少 3 个 → ⑤ 实现代码应直接反映控制流</p>
+    </div>
+    <div class="card card-accent">
+      <h4>Evaluator — Devil's Advocate 魔鬼代言人</h4>
+      <p><strong>5 维度协议</strong>：① SPEC COMPLIANCE（逐条验收标准比对，标 PASS/FAIL+证据） → ② ATTACK SURFACE（每个函数找一个破坏性输入） → ③ ERROR HANDLING（每个外部调用是否有容错） → ④ IMPLICIT ASSUMPTIONS（环境假设是否成立） → ⑤ REGRESSION RISK。</p>
+      <p>起手句：<em>"Assume this code contains bugs."</em> 输出分级：CRITICAL / MAJOR / MINOR</p>
+    </div>
+  </div>
+
+  <!-- 点2 Qwen thinking -->
+  <h4>② Qwen Thinking 模式精细控制</h4>
+  <table>
+    <tr><th>场景</th><th>Proxy 行为</th><th>理由</th></tr>
+    <tr><td>Evaluator 审查</td><td><code>/think</code> + 高 max_thinking_tokens</td><td>审查需要系统性推理</td></tr>
+    <tr><td>Planner 分解</td><td><code>/think</code> + 中高预算</td><td>开放式推理</td></tr>
+    <tr><td>Generator 复杂实现</td><td><code>/think</code> + 中预算</td><td>编码前思考</td></tr>
+    <tr><td>Generator 简单编辑</td><td><code>/no_think</code></td><td>短修改不需长思考</td></tr>
+    <tr><td>工具调用（读文件/搜索）</td><td><code>/no_think</code> + 低预算</td><td>确定性操作</td></tr>
+  </table>
+  <div class="callout-warn callout">
+    <strong>Qwen 特有注意</strong>：推理模型已有原生 <code>&lt;think&gt;</code> 能力——<strong>不要用 "think step by step"</strong>，会干扰原生推理。对 thinking 模式的请求，模板措辞改为 <em>"Ensure your thinking covers the following aspects:..."</em>。
+  </div>
+
+  <!-- 点3 Budget Forcing -->
+  <h4>③ Budget Forcing 三级实现</h4>
+  <div class="card-grid">
+    <div class="card card-good">
+      <h4>Level A：System Prompt 级 <span class="tag tag-p0">Day 1</span></h4>
+      <p>所有角色始终注入：<em>"After initial analysis, pause and reconsider: what did I miss? What assumption might be wrong?"</em></p>
+      <p class="muted">零工程成本</p>
+    </div>
+    <div class="card card-gold">
+      <h4>Level B：输出检测 + 自动追问 <span class="tag tag-p1">Day 4-5</span></h4>
+      <p>检测信号：响应过短（代码实现请求 < 200 tokens）、无 <code>&lt;think&gt;</code> 块、直接给结论。触发后追加一轮：<em>"Your response was too brief. What design decisions did you make and why? What alternatives did you reject? Revise."</em></p>
+      <p class="muted">阈值按 intent 分别设定；最大追问 1 次</p>
+    </div>
+    <div class="card">
+      <h4>Level C：后处理质量门控 <span class="tag tag-p2">实验</span></h4>
+      <p>静态分析 Generator 输出：TODO/FIXME 占位符（未完成）、空 catch 块（error swallowing）、函数数量与 spec 不匹配。检测到后注入针对性修复指令。</p>
+    </div>
+  </div>
+
+  <!-- 点4 条件反思 -->
+  <h4>④ 条件化自我反思注入</h4>
+  <table>
+    <tr><th>触发条件</th><th>注入内容</th><th>不触发条件</th></tr>
+    <tr><td>Generator <strong>完成一个 feature</strong></td><td>"Review implementation against acceptance criteria. All covered?"</td><td>执行工具调用</td></tr>
+    <tr><td>Generator 第 2+ 轮精炼</td><td>"Before fixing: is the root cause what the error says, or deeper?"</td><td>首次生成（角色模板已覆盖）</td></tr>
+    <tr><td>Evaluator 即将最终判定</td><td>"Did you verify EVERY criterion, or stopped after first issue?"</td><td>中间推理过程</td></tr>
+    <tr><td>Planner 产出 > 8 features</td><td>"Are some features actually sub-features? Dependency order correct?"</td><td>首次调用</td></tr>
+  </table>
+  <p class="warn">⚠ 过度反思消耗上下文 + 引发「反思疲劳」（模型开始泛泛而谈）——严格按规则触发</p>
+
+  <!-- 点5 Pre-mortem -->
+  <h4>⑤ Pre-mortem 分析注入</h4>
+  <div class="card card-warn">
+    <p><strong>学术依据</strong>：Devil's Advocate（arxiv 2405.16334）WebArena 上减少 <strong>45% 无效重试</strong>。</p>
+    <p>在 Planner 完成 feature 分解后注入：<em>"Imagine this plan has already failed. 3 most likely causes: ① Technical risk (hardest part generator will get wrong) ② Scope risk (seems simple but has hidden complexity) ③ Integration risk (individually correct but fails combined). Add mitigation notes."</em></p>
+    <p>简化版注入 Generator 复杂 feature 前：<em>"Quick pre-mortem: what ONE thing is most likely to go wrong? How will you prevent it?"</em></p>
+  </div>
+
+  <!-- 点6 上下文位置 -->
+  <h4>⑥ 上下文位置优化</h4>
+  <p>解决 "Lost in the Middle" 效应：长上下文中模型对中间部分注意力最弱。</p>
+  <table>
+    <tr><th>注入内容</th><th>位置</th><th>原因</th></tr>
+    <tr><td>验收标准 / spec 摘要</td><td>system prompt <strong>开头</strong></td><td>开头注意力强，适合北极星约束</td></tr>
+    <tr><td>角色定义 / 基础规则</td><td>system prompt <strong>中间</strong></td><td>常规内容</td></tr>
+    <tr><td>角色推理引导模板</td><td>system prompt <strong>末尾</strong></td><td>紧邻生成起始点，注意力最强</td></tr>
+    <tr><td>Few-shot 示例</td><td>紧贴当前请求之前</td><td>距任务最近</td></tr>
+  </table>
+
+  <!-- 点7 负面约束 -->
+  <h4>⑦ 负面约束注入（对抗「好学生综合症」）</h4>
+  <table>
+    <tr><th>模型倾向</th><th>对长任务的危害</th><th>对抗约束（肯定式改写）</th></tr>
+    <tr><td class="warn">过早宣布完成</td><td>留下半成品</td><td><em>"ALWAYS verify EVERY acceptance criterion before declaring complete"</em></td></tr>
+    <tr><td class="warn">过度工程</td><td>消耗上下文</td><td><em>"ONLY implement what was explicitly requested. No unrequested features or refactoring"</em></td></tr>
+    <tr><td class="warn">跳过错误处理</td><td>Happy path 可用但遇错就崩</td><td><em>"ALWAYS wrap external calls (API/DB/file) with error handling"</em></td></tr>
+    <tr><td class="warn">自评过于宽松</td><td>Evaluator 变 Yes-man</td><td><em>"Give PASS only with POSITIVE evidence for every criterion"</em></td></tr>
+  </table>
+  <p class="muted">用肯定式（ALWAYS...）代替否定式（Don't...）——研究表明模型对肯定指令遵从率更高。放在 system prompt 末尾。</p>
+
+  <!-- 点8 Few-shot -->
+  <h4>⑧ Few-shot 校准（Evaluator 专用）</h4>
+  <div class="card card-gold">
+    <p>注入 2-3 个标注示例，包含 <strong>FAIL 案例 + PASS 案例</strong>：</p>
+    <p><strong>FAIL 示例</strong>：有 SQL 注入 + 无错误处理 + 无 null 检查 → CRITICAL+MAJOR → FAIL</p>
+    <p><strong>PASS 示例</strong>：参数化查询 + try/catch + null 检查 → 仅 MINOR → PASS</p>
+    <p class="muted">必须包含 FAIL——只有 PASS 会训练出宽松判定。按项目域定制（Web vs CLI vs 数据管道）。2-3 个足够，超过 5 个边际递减。</p>
+  </div>
+
+  <!-- 点9 结构化输出 -->
+  <h4>⑨ 结构化输出强制</h4>
+  <div class="card-grid">
+    <div class="card">
+      <h4>Planner → JSON Feature List</h4>
+      <p>每个 feature 必含：<code>id, name, priority(MVP/LATER), acceptance_criteria[], dependencies[], complexity, risk_note</code></p>
+    </div>
+    <div class="card">
+      <h4>Evaluator → JSON Report</h4>
+      <p>包含：<code>verdict(PASS/FAIL), issues[{severity, category, location, description, suggestion}], verified_criteria[]</code></p>
+      <p class="muted">机器可读 → Agent 框架直接消费 → 无需二次解析 → 多视角扇出聚合时可自动合并 issues</p>
+    </div>
+  </div>
+
+  <!-- 点10 动态路由 -->
+  <h4>⑩ 动态模板选择（Intent 路由）</h4>
+  <table>
+    <tr><th><code>X-Agent-Intent</code></th><th>注入的提示片段组合</th></tr>
+    <tr><td><code>plan-features</code></td><td>Planner 模板 + Pre-mortem + JSON 输出格式 + <code>/think</code></td></tr>
+    <tr><td><code>implement-feature</code></td><td>Generator/SCoT 模板 + 负面约束 + <code>/think</code></td></tr>
+    <tr><td><code>implement-fix</code></td><td>Generator 模板 + 根因分析提示 + 提升思考预算</td></tr>
+    <tr><td><code>evaluate-feature</code></td><td>Evaluator/DA 模板 + Few-shot + JSON 输出格式 + <code>/think</code></td></tr>
+    <tr><td><code>read-only-tool</code></td><td><code>/no_think</code> + 无额外注入</td></tr>
+    <tr><td><code>summarize-progress</code></td><td>简短反思 + <code>/no_think</code></td></tr>
+  </table>
+
+  <h4>实施排期</h4>
+  <table>
+    <tr><th>阶段</th><th>时间</th><th>交付物</th></tr>
+    <tr><td>Day 1</td><td>半天</td><td>三套角色模板初版 + Qwen thinking 控制 + intent 路由骨架</td></tr>
+    <tr><td>Day 1-2</td><td>半天</td><td>Budget Forcing Level A + 负面约束 + 上下文位置优化</td></tr>
+    <tr><td>Day 2-3</td><td>1 天</td><td>Few-shot 校准集（3 FAIL + 2 PASS）+ Evaluator 结构化输出</td></tr>
+    <tr><td>Day 3-4</td><td>1 天</td><td>Pre-mortem 模板 + 条件反思触发 + Planner 结构化输出</td></tr>
+    <tr><td>Day 4-5</td><td>1 天</td><td>Budget Forcing Level B（浅层输出检测 + 自动追问）</td></tr>
+    <tr><td>Day 5+</td><td>持续</td><td>Golden Set A/B 验证 + 数据收集 + 模板迭代</td></tr>
+  </table>
+
+  <!-- 思考预算 -->
+  <h3>8.3 思考预算编排</h3>
+  <p>Proxy 按 <code>X-Agent-Role</code> + <code>X-Agent-Intent</code> 自动设置 <code>max_thinking_tokens</code>：</p>
+  <table>
+    <tr><th>角色 + 意图</th><th>起步值</th><th>说明</th></tr>
+    <tr><td>Evaluator（代码审查）</td><td>8192</td><td>审查需要系统性思考</td></tr>
+    <tr><td>Planner（任务分解）</td><td>8192</td><td>开放式推理</td></tr>
+    <tr><td>Generator（复杂实现）</td><td>4096</td><td>编码推理</td></tr>
+    <tr><td>Generator（简单编辑）</td><td>1024</td><td>短修改</td></tr>
+    <tr><td>Generator（工具调用）</td><td>0</td><td>读文件、搜索不需要思考</td></tr>
+  </table>
+  <div class="callout">
+    <strong>调参方法</strong>：在 Golden Set 上对同一任务跑不同预算，绘制<strong>质量-延迟曲线</strong>，找边际收益拐点。Qwen 的 &lt;think&gt; 机制与 Claude 不同，过长可能出现重复推理或自我矛盾——需设上限并监控。
+  </div>
+
+  <!-- 迭代精炼 -->
+  <h3>8.4 迭代精炼（带外部反馈）</h3>
+  <div class="flow">
+    <div class="flow-step"><div class="flow-num">1</div><h5>Generator 生成</h5><p>正常产出代码</p></div>
+    <div class="flow-step"><div class="flow-num">2</div><h5>工具链运行</h5><p>编译 → 测试 → lint</p></div>
+    <div class="flow-step"><div class="flow-num">3</div><h5>失败 → 注入反馈</h5><p>把具体错误信息发回</p></div>
+    <div class="flow-step"><div class="flow-num">4</div><h5>Generator 修复</h5><p>Proxy 自动提升思考预算</p></div>
+    <div class="flow-step"><div class="flow-num">5</div><h5>再次验证</h5><p>最多 K 轮后升级</p></div>
+  </div>
+  <div class="callout-warn callout">
+    <strong>关键区分</strong>：反馈必须是<strong>外部事实</strong>（编译错误、测试结果），不是 LLM 对 LLM 的意见。研究表明：无外部反馈的 Self-Refinement 效果很差甚至有害。
+  </div>
+
+  <!-- Best-of-N -->
+  <h3>8.5 Best-of-N（可选 — 非全局默认）</h3>
+  <p>并行向 Qwen 发送 N 个请求（不同 temperature/seed），利用 KV-Cache 共享降低开销。</p>
+  <table>
+    <tr><th>选择方式</th><th>适用场景</th><th>可靠度</th></tr>
+    <tr><td><strong>结构化验证器</strong></td><td>代码能编译？JSON 合法？测试通过？</td><td>最高 — 无幻觉</td></tr>
+    <tr><td><strong>自洽性投票</strong></td><td>有确定答案的推理题</td><td>高 — 不需额外模型</td></tr>
+    <tr><td>序列 logprob</td><td>通用</td><td>中 — 高 logprob ≠ 高质量</td></tr>
+  </table>
+  <div class="callout">
+    <strong>何时开启 BoN</strong>：①&nbsp;Evaluator 连续 N 轮不通过 → 换思路重新生成；②&nbsp;Planner 分解质量影响全局 → 多采样；③&nbsp;安全/合规代码 → 高标准。<strong>不做全局默认。</strong>
+  </div>
+
+  <!-- 轻量版并行思考 -->
+  <h3>8.6 轻量版并行思考（多视角提示 — 实验级）</h3>
+  <p>受 ParaThinker 启发，但<strong>不需要训练模型</strong>，Proxy 层即可实现：</p>
+  <div class="diagram"><span class="hl">Proxy 收到复杂请求</span>
+    │
+    ├─<span class="hl2">路径 A</span>：system prompt + "Approach by identifying edge cases first"
+    ├─<span class="hl2">路径 B</span>：system prompt + "Approach by designing the data flow first"
+    └─<span class="hl2">路径 C</span>：system prompt + "Approach by writing tests first, then implementing"
+    │
+    ├─ 等待所有路径完成
+    │
+    └─<span class="hw">选择策略</span>：
+       ├─ 有验证器 → 选通过验证的
+       ├─ 无验证器 → 交给 LLM 综合（类似 ThinkMerge 总结阶段）
+       └─ 或用 logit 融合（若已实现 ThinkMerge）</div>
+  <div class="callout">
+    <strong>为什么比纯 BoN 更好</strong>：纯 BoN 同一提示不同温度 = 在同一解空间重复采样。多视角提示 = <strong>引导模型探索不同解空间</strong>。成本相同，信息量更大。
+  </div>
+
+  <!-- ThinkMerge -->
+  <h3>8.7 ThinkMerge — Logit 平均融合（探索级）</h3>
+  <div class="card card-gold">
+    <h4>核心机制："Think in Parallel, Answer as One"</h4>
+    <p><strong>Step 1</strong>：并行生成 K 条独立思考路径（<code>&lt;think&gt;</code> 阶段各自推理）</p>
+    <p><strong>Step 2</strong>：进入作答阶段后，每一步解码时对 K 条路径的 <strong>Logit 做算术平均</strong></p>
+    <p><strong>Step 3</strong>：用融合概率分布采样下一个 token → 反馈注入所有路径，保持后续一致</p>
+  </div>
+
+  <h4>为什么对代码生成特别有价值</h4>
+  <table>
+    <tr><th>维度</th><th>Best-of-N</th><th>投票</th><th>ThinkMerge</th></tr>
+    <tr><td>融合层级</td><td>结果级</td><td>答案级</td><td><strong>Token 级</strong></td></tr>
+    <tr><td>开放式任务</td><td>需要验证器选 — 代码无唯一正确答案</td><td>无法投票</td><td><strong>生成过程本身综合多条思路</strong></td></tr>
+    <tr><td>实验结果</td><td>依赖选择器质量</td><td>仅限封闭题</td><td>LiveCodeBench 显著提升 Pass@1</td></tr>
+  </table>
+
+  <h4>vLLM 工程可行性</h4>
+  <div class="card">
+    <p>✓ 通过自定义 <code>LogitsProcessor</code> 实现，<strong>不修改 vLLM 核心引擎</strong></p>
+    <p>✓ 多路径作为同一 batch 的不同序列提交，<strong>共享 KV-Cache 前缀</strong></p>
+    <p>✓ 兼容标准解码策略（Top-k, Top-p, temperature）</p>
+    <p class="warn">⚠ 需确保路径同步完成当前步骤；异步对齐是主要工程挑战</p>
+    <p class="warn">⚠ K 条路径 GPU 计算量 ≈ K 倍（KV-Cache 共享可部分降低）</p>
+  </div>
+
+  <div class="callout">
+    <strong>建议</strong>：先在离线实验环境用 Qwen 122B 跑 Golden Set 验证效果，确认 Pass@1 提升幅度后再决定是否投入工程化。若提升 >5%，值得做。
+  </div>
+
+  <!-- 前沿启发 -->
+  <h3>8.8 前沿研究启发（跟踪但不直接投入）</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>ParaThinker（清华）</h4>
+      <p>引入可训练的 <code>&lt;think i&gt;</code> 控制 token，模型在<strong>单次前向传播</strong>中并行生成多条路径。1.5B 模型平均准确率提升 12.3%。</p>
+      <p class="muted"><strong>启发</strong>：隧道视野（走错路后计算再多也难纠正）是长链路的核心问题。并行探索多条路径是根本解法。我们的「轻量版并行思考」即此思路的 Proxy 层近似。</p>
+    </div>
+    <div class="card">
+      <h4>Elastic Reasoning（Salesforce）</h4>
+      <p>将推理拆为<strong>思考阶段 + 解决方案阶段</strong>，分别设独立 token 预算。思考被截断时模型仍能产出合理方案。</p>
+      <p class="muted"><strong>启发</strong>：避免「思考太多导致输出被截断」——Proxy 可以把 max_thinking_tokens 和 max_tokens 分开控制。这对 Qwen 高 thinking 预算时的实际风险是有效缓解。</p>
+    </div>
+    <div class="card">
+      <h4>Learned Continue-Thinking Token</h4>
+      <p>通过 RL 仅训练一个 <code>&lt;|continue-thinking|&gt;</code> token 的嵌入（冻结模型参数），在数学推理上优于固定 "Wait" token。</p>
+      <p class="muted"><strong>启发</strong>：如果 Budget Forcing 的 token 级方案上线，可考虑用 RL 学一个最优 token 而非硬编码 "Wait"。低成本（仅训练一个嵌入）。</p>
+    </div>
+  </div>
+
+  <!-- 落地清单 -->
+  <h3>8.9 Proxy 层落地清单</h3>
+  <div class="timeline">
+    <div class="tl-item done">
+      <div class="tl-title">第一批 B0（1-2 天）</div>
+      <div class="tl-desc">
+        ① 角色推理模板注入：按 X-Agent-Role 自动注入对应引导 prompt<br>
+        ② 思考预算按角色分配：max_thinking_tokens 按 role + intent 设值<br>
+        ③ Evaluator 严格度校准：few-shot 示例 + 系统提示注入
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-title">第二批 B1（3-5 天）</div>
+      <div class="tl-desc">
+        ④ 多视角评估扇出：不同维度模板并行<br>
+        ⑤ 反思注入（条件触发）：Generator 完成 feature 后自动追加<br>
+        ⑥ Budget Forcing 方式 B：检测浅层输出时自动追加一轮
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-title">第三批 — 实验级</div>
+      <div class="tl-desc">
+        ⑦ 轻量版并行思考：同一请求用不同视角提示并行发出，综合结果<br>
+        ⑧ ThinkMerge PoC：vLLM LogitsProcessor 自定义实现，Golden Set 验证
+      </div>
+    </div>
+  </div>
+
+  <!-- 算力消耗策略 -->
+  <h3>8.10 算力消耗策略（整合视图）</h3>
+  <div class="diagram"><span class="hl">请求进来</span>
+    │
+    ├→ <span class="hl2">简单任务</span> → 122B thinking OFF + 角色模板注入
+    │              (算力 ≈1.2x，速度：快)
+    │
+    ├→ <span class="hl2">中等任务</span> → 122B thinking ON + 角色引导 + 验证
+    │              (算力 ≈2-3x，速度：正常)
+    │
+    ├→ <span class="hl2">复杂任务</span> → 122B + 反思注入 + 多视角评估扇出
+    │              (算力 ≈3-5x，速度：正常，评估并行)
+    │
+    └→ <span class="hw">极难/反复失败</span> → 轻量并行思考(3视角) + BoN + 交叉评估
+                   (算力 ≈6-10x，启用 MiniMax 交叉验证)
+
+<span class="hl">空闲时段</span>
+    ├→ Golden Set 回归跑批
+    ├→ ThinkMerge 效果实验
+    └→ 思考预算-质量曲线绘制</div>
+
+  <!-- ========== 新：来自 deep-research 的关键增量 ========== -->
+  <h3>8.11 deep-research 关键新发现（2026-04 增补） <span class="tag tag-p0">新</span></h3>
+  <p class="muted">以下是 <a href="./deep-research-maximize-llm-quality.md">deep-research-maximize-llm-quality.md</a> 中尚未体现在 8.1-8.10 的发现，已按 ROI 纳入整体路线。</p>
+
+  <h4>① Logprob 置信度监控（C2.1）🔑 <span class="warn">被系统性低估</span></h4>
+  <div class="card card-gold">
+    <p>研究显示 <strong>logprob 与幻觉率强负相关</strong>，且自有 vLLM 部署天然支持 token-level logprobs 输出——几乎零额外成本。</p>
+    <p><strong>玩法</strong>：</p>
+    <ul style="margin:6px 0 6px 20px">
+      <li>滑动窗口监控 logprob 均值跌落 → 触发 Supervisor consult（见 §6.2）</li>
+      <li>Token Confidence Gating（C2.2）：高熵段落命中关键位置（API 名、数值、路径）→ 分场景处理</li>
+      <li>报告显示：幻觉 API 返工可降 <strong>60-80%</strong></li>
+    </ul>
+    <p class="warn">⚠ 前提：<strong>P0 必须从透明代理阶段就开始采集 logprobs</strong>。不采 = P1 的整条推理质量线起不来。</p>
+  </div>
+
+  <h4>② vLLM 原生思考预算 <span class="good">工程量大幅降低</span></h4>
+  <p>原计划用 Proxy 自研拦截 <code>&lt;/think&gt;</code> 实现 Budget Forcing，现在 <strong>vLLM 已内建</strong> <code>thinking_token_budget</code> 参数：</p>
+  <div class="diagram">vllm serve Qwen/Qwen3-model --reasoning-parser qwen3
+
+请求中：{"thinking_token_budget": 8192}  # 每请求独立</div>
+  <p class="muted">建议路径：Budget Forcing 的"硬停 + Wait 注入"用 Proxy 实现，普通思考预算控制直接走 vLLM 原生。</p>
+
+  <h4>③ ThinkPRM-14B：最值得部署的过程验证器（B4.1）</h4>
+  <div class="card">
+    <p>生成式 PRM，基于 R1-Distill-Qwen，用"思考链"方式评估每个推理步骤。</p>
+    <table style="margin-top:8px">
+      <tr><th>指标</th><th>数据</th></tr>
+      <tr><td>训练数据量</td><td>仅 <strong>8K 过程标签</strong></td></tr>
+      <tr><td>GPQA</td><td>超越判别式 PRM <strong>+8%</strong></td></tr>
+      <tr><td>LiveCodeBench</td><td><strong>+4.5%</strong></td></tr>
+      <tr><td>部署成本</td><td>独立 14B 模型，约 28GB VRAM，不改 vLLM 源码</td></tr>
+    </table>
+    <p class="muted">用法：作为 Supervisor 的"小模型 sanity supervisor"档位（§6.3）的升级品，也可用于 BoN 候选排序。</p>
+  </div>
+
+  <h4>④ EASD 熵感知推测解码 <span class="warn">反直觉</span></h4>
+  <div class="card card-gold">
+    <p>传统推测解码被认为"只加速不改质量"，EASD 发现：<strong>小模型 + 大模型都高熵时拒绝小模型提议</strong>，强制大模型在关键决策点重新采样——<strong>反向提升大模型准确率</strong>。</p>
+    <table style="margin-top:8px">
+      <tr><th>配置</th><th>平均分</th><th>AIME2024</th></tr>
+      <tr><td>单 32B</td><td>49.35</td><td>16.67%</td></tr>
+      <tr><td>32B + 7B（EASD）</td><td><strong>52.89（+3.54）</strong></td><td><strong>23.3%（+6.63）</strong></td></tr>
+    </table>
+    <p class="muted">意义：加速与提质同时获得——这改变了"推理时计算扩展 ≠ 降速"的固有认知。vLLM 已原生支持推测解码。</p>
+  </div>
+
+  <h4>⑤ Prompt Ensembling + Response Merging（B1.7 + B1.8）<span class="good">超越纯 BoN</span></h4>
+  <div class="card">
+    <p>v1 只提了"轻量版并行思考"（7.6），但<strong>不选最优、而合并多个候选</strong>的 Response Merging 才是信息利用率最高的方向。</p>
+    <p><strong>对比</strong>：</p>
+    <ul style="margin:6px 0 6px 20px">
+      <li>纯 BoN：N 个输出选 1 个，信息利用率 1/N</li>
+      <li>Response Merging：合并多家之长，信息利用率 ~N/N；AlpacaEval <strong>+5-8%</strong></li>
+      <li>代码场景：Prompt Ensembling 比 BoN <strong>+3-5%</strong></li>
+    </ul>
+    <p class="muted">落位：作为 Supervisor <code>escalate_strategy</code> 的 <code>ensemble_rerun</code> 动作（§6.2）。</p>
+  </div>
+
+  <h4>⑥ Classifier-Selective CoT <span class="warn">反直觉</span>：CoT 并非总是有效</h4>
+  <table>
+    <tr><th>场景</th><th>CoT 效果</th></tr>
+    <tr><td>复杂数学 / 代码设计</td><td class="good">✅ 显著提升</td></tr>
+    <tr><td>隐式统计学习</td><td class="warn">❌ o1 比 GPT-4o 降低 36.3%</td></tr>
+    <tr><td>含例外的分类</td><td class="warn">❌ 学习迭代次数增加 331%</td></tr>
+    <tr><td>简单约束任务（指令遵循）</td><td class="warn">❌ 遵从率从 75.2% 降至 59.0%</td></tr>
+  </table>
+  <p class="muted">结论：Proxy 按 intent 路由 CoT——简单约束任务自动关闭推理模式（<code>/no_think</code>）。原因：CoT 将注意力从约束相关 token 转移到内容推理上。</p>
+
+  <h4>⑦ MoE-Sieve 轻量 LoRA（长期方向）</h4>
+  <p>122B MoE 全量 LoRA 参数量过大。MoE-Sieve 只训练 <strong>Top-25% 热门专家</strong>——冷专家引入梯度噪声反而有害。</p>
+  <p class="muted">与全量 LoRA 精度差距 ±1pp，<strong>减少 70% 参数、50% 训练时间</strong>。2026 年 6 月升级节点前的"推理链蒸馏 LoRA"应走这条路径。</p>
+
+  <div class="callout">
+    <strong>整合结论</strong>：上述 7 条是 v1.1 没有覆盖的增量。其中 ①②⑥ 属于 Quick Win（1-2 周），③④⑤ 属于中期（1-3 月），⑦ 属于长期（3-6 月）。实施优先级见第九章。
+  </div>
+</section>
+
+<!-- ===== 怎么做 ===== -->
+<section id="how">
+  <h2>九、实施路径</h2>
+
+  <h3>9.1 实施原则</h3>
+  <div class="card-grid">
+    <div class="card card-accent">
+      <h4>MVP 优先</h4>
+      <p>先跑通「一 feature → 工具验证 → 评估反馈 → 修复」，再加重平台能力。</p>
+    </div>
+    <div class="card card-accent">
+      <h4>Build to Delete</h4>
+      <p>为当前模型弱点写的补丁要可删除。持久的是<strong>契约、指标、评估集</strong>。</p>
+    </div>
+    <div class="card card-accent">
+      <h4>实测驱动</h4>
+      <p>思考预算数值、扇出维度数、校准方案——全部用 Golden Set + 日志决定，不拍脑袋。</p>
+    </div>
+    <div class="card card-accent">
+      <h4>算力投评估</h4>
+      <p>优先评估与规划相关调用，生成侧扩展采样仅作补充。</p>
+    </div>
+  </div>
+
+  <h3>9.2 Proxy 主轴排期（P0 → P0.5 → P1 → P2）<span class="tag tag-p0">2026-04 重排</span></h3>
+  <p class="muted">按 <a href="./deep-research-maximize-llm-quality.md">deep-research</a> §六 ROI 对齐。<strong>Pull 路径（Anthropic 已验证）排在 P0.5a 第一优先级</strong>，Push 兜底 / logprob 触发作为增量依次展开。</p>
+
+  <div class="timeline">
+    <div class="tl-item done">
+      <div class="tl-title">P0（3-5 天）— 透明代理 + 完整数据底座</div>
+      <div class="tl-desc">
+        ① Claude Code 兼容的 /v1/messages 透明代理 + SSE<br>
+        ② <strong>完整数据采集</strong>：body / logprobs / reasoning stream / finish_reason / 完整 header JSON（<span class="warn">不做就砍掉 P1 的 C2 线</span>）<br>
+        ③ trace 字段预留：parent_trace_id / span_type / role<br>
+        ④ GET /health、GET /api/traces 查询接口<br>
+        详见 <a href="./claude-code-proxy-p0-plan.md">claude-code-proxy-p0-plan.md</a>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-title">P0.5a（紧随 P0，3-5 天）— <span style="color:var(--good)">Pull 路径 · 复刻 Advisor Strategy</span> <span class="tag tag-p0">第一优先级 · 已验证</span></div>
+      <div class="tl-desc">
+        ① 在 Agent 侧给 executor 注册 <code>request_supervisor_consult</code> 虚拟工具（语义对齐 Anthropic <code>advisor_20260301</code>）<br>
+        ② 顾问硬边界：不调工具 / 不出用户可见内容 / 只返 plan-correction-stop；<code>max_uses</code> 封顶<br>
+        ③ 验收：SWE-bench Multilingual / BrowseComp 子集复现官方量级（+2.7 pp · 成本不升反降）<br>
+        ④ Golden Set（10-20 条）监控 consult 采纳率 &gt; 50%、越权率 &lt; 5%<br>
+        <span class="muted" style="font-size: 12px">工程改动最小、风险最低、有官方 benchmark 背书。优先独立上线独立验证。</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-title">P0.5b（并行，2-3 天）— Manual Push Supervisor + 止损规则</div>
+      <div class="tl-desc">
+        ⑤ 识别 <code>X-Supervisor-Mode: manual</code>，注入 supervisor system prompt<br>
+        ⑥ 输出 schema 强制：禁 code 字段、≤512 token、越权直接 reject<br>
+        ⑦ <strong>2 轮强制 escalate 硬规则</strong>（deep-research §四固化，兜住 executor "自信地错"没主动求助的场景）
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-title">P1.0（1-2 周）— Quick Win 批次</div>
+      <div class="tl-desc">
+        ⑤ Auto triggers：tool_failure_streak / loop_detected / no_progress<br>
+        ⑥ budget_force（A2.3）+ wm_refresh（D1.2）+ devil_advocate（A1.4）<br>
+        ⑦ 角色模板 + 思考预算 + 评估严格度 prompt 注入（原 B0）<br>
+        ⑧ 采样参数修正 + 温度调度（deep-research Quick Win 1-3）<br>
+        ⑨ 选择性 CoT（避免简单约束任务 -10-15% 负效应）
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-title">P1.1（1-3 月）— 中期批次</div>
+      <div class="tl-desc">
+        ⑩ <strong>logprob_drop / token_confidence_gate</strong> 触发（C2.1 / C2.2）🔑<br>
+        ⑪ rag_inject 动作（C1.5，难度 D&gt;60 时触发）<br>
+        ⑫ 小模型 sanity supervisor（B2.3）+ 异模型 supervisor（MiniMax / Claude）<br>
+        ⑬ 评估多视角扇出 MVP（原 B1）+ few-shot 校准<br>
+        ⑭ ThinkPRM-14B 作为 BoN 重排序器（B4.1）<br>
+        ⑮ EASD 推测解码（+3.5% + 加速）
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-title">P1.2（3-6 月）— 长期批次</div>
+      <div class="tl-desc">
+        ⑯ Hierarchical Gates（B2.4）：L0 任务 / L1 feature / L2 step 三级门禁<br>
+        ⑰ ensemble_rerun 策略（B1.7 + B1.8 超越纯 BoN）<br>
+        ⑱ 自动 model_upgrade 路由（按 Golden Set 能力边界决策）<br>
+        ⑲ 推理链蒸馏 LoRA（MoE-Sieve 策略，A3 + A3.5）<br>
+        ⑳ Independent Service：仪表盘 + 回归管道（原 C1 / C2）
+      </div>
+    </div>
+  </div>
+
+  <h3>9.3 Agent 侧并行路线</h3>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-title">A1 — 契约与产物</div>
+      <div class="tl-desc">feature_list、progress、commit 约定；新 session 先读产物再动手。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-title">A2 — 三角色闭环（可与 P1.0 并行）</div>
+      <div class="tl-desc">Planner → Generator（单 feature）→ Evaluator → 循环。集成 Supervisor 的 <code>request_supervisor_consult</code> 虚拟工具。</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-title">A3 — 工具与真实验证</div>
+      <div class="tl-desc">测试、构建、Playwright；Evaluator 输出必须可定位、可操作；失败信号反馈到 Supervisor 触发器。</div>
+    </div>
+  </div>
+
+  <h3>9.4 Proxy 层 HTTP Header 契约</h3>
+  <table>
+    <tr><th>Header</th><th>必选</th><th>说明</th></tr>
+    <tr><td><code>X-Agent-Role</code></td><td>是</td><td>planner / generator / evaluator</td></tr>
+    <tr><td><code>X-Agent-Intent</code></td><td>否</td><td>影响思考预算：implement-feature / evaluate-feature / read-only-tool 等</td></tr>
+    <tr><td><code>X-Eval-Perspectives</code> / <code>X-Eval-Strictness</code></td><td>否</td><td>评估维度 / 严格度</td></tr>
+    <tr><td class="warn"><code>X-Supervisor-Mode</code></td><td>否</td><td>off / manual / auto / gate（P0.5+）</td></tr>
+    <tr><td class="warn"><code>X-Supervisor-Trigger</code> / <code>-Model</code> / <code>-Budget</code> / <code>-Policy</code> / <code>-Allow-Actions</code></td><td>否</td><td>Supervisor 完整参数矩阵，见 <a href="./supervisor-mode-design.md">supervisor-mode-design §4.1</a></td></tr>
+    <tr><td><code>X-Task-ID</code> / <code>X-Feature-ID</code> / <code>X-Parent-Trace-Id</code> / <code>X-Worker-Retry-Count</code></td><td>否</td><td>分布式追踪 + Supervisor 2 轮规则计数</td></tr>
+  </table>
+  <p class="muted">P0 要求：未知 <code>X-*</code> header 一律原样透传并记录到完整 header JSON，不要做白名单过滤。未带任何 X 头时 Proxy 行为与直连模型一致（向后兼容 Claude Code）。</p>
+</section>
+
+<!-- ===== 风险 ===== -->
+<section id="risk">
+  <h2>十、风险与缓解</h2>
+  <table>
+    <tr><th>风险</th><th>影响</th><th>缓解</th></tr>
+    <tr>
+      <td class="warn">评估过严 → 循环不收敛</td>
+      <td>Generator 反复修改无法通过，上下文爆炸</td>
+      <td>最大重试次数；严重度分级（仅 CRITICAL 阻断）；繁忙时降级扇出维度</td>
+    </tr>
+    <tr>
+      <td class="warn">纯 LLM 评估假装有工具</td>
+      <td>LLM 猜测边缘行为 = 更花哨的幻觉</td>
+      <td><strong>Agent 层必须先落地工具链</strong>；Proxy 评估增强建立在工具产出之上</td>
+    </tr>
+    <tr>
+      <td>同模型自偏好</td>
+      <td>Evaluator 对 Generator 产出系统性偏松</td>
+      <td>工具事实 > LLM 判断；few-shot 校准；交叉评估；Golden Set 监控</td>
+    </tr>
+    <tr>
+      <td>集群忙时评估扇出抢资源</td>
+      <td>延迟升高，影响正常任务</td>
+      <td>监控 P95 排队；超阈值自动降级（减维度 / 关扇出）</td>
+    </tr>
+    <tr>
+      <td>思考预算数值拍脑袋</td>
+      <td>过高浪费、过低无效、Qwen 机制不同于 Claude</td>
+      <td>起步用保守值；在 Golden Set 上实测质量-延迟曲线，找拐点</td>
+    </tr>
+    <tr>
+      <td>Build to Delete 失败</td>
+      <td>补丁累积、系统越来越复杂</td>
+      <td>每次模型升级做「保留/简化/删除」评审；文档标注哪些是临时补丁</td>
+    </tr>
+    <tr>
+      <td class="warn">Supervisor 越权接管生成 <span class="tag tag-p0">新</span></td>
+      <td>Supervisor 输出完整代码或 diff，破坏分工</td>
+      <td>P0.5 起 schema 强制：禁 <code>code</code>/<code>diff</code>/<code>file_patch</code> 字段；≤512 token；违规直接 reject 并记 <code>schema_violation</code></td>
+    </tr>
+    <tr>
+      <td class="warn">多轮自我修正反而有害 <span class="tag tag-p0">新</span></td>
+      <td>研究显示 &gt; 2 轮自我纠错会在错误方向上自我强化</td>
+      <td><strong>2 轮强制 escalate 硬规则</strong>：同错误类型累计 2 次 adjust 后必须切换策略（bon/ensemble/rag/model_upgrade）</td>
+    </tr>
+    <tr>
+      <td>Supervisor 误报率过高（false consult）</td>
+      <td>无谓打断 worker、成本上升</td>
+      <td>触发阈值按 Golden Set 实测调；统计"consult 后是否改变输出"作为信号有效性指标；&lt; 30% 的触发源自动下线</td>
+    </tr>
+    <tr>
+      <td>logprobs / reasoning 采集数据量暴涨 <span class="tag tag-p0">新</span></td>
+      <td>SQLite 体积膨胀，查询变慢</td>
+      <td>logprobs 默认 top-5；长请求按采样率落盘；冷数据自动归档；SQLite WAL + 异步写入</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ===== 成功度量 ===== -->
+<section id="metrics">
+  <h2>十一、成功度量</h2>
+  <table>
+    <tr><th>层级</th><th>指标</th><th>说明</th></tr>
+    <tr><td><strong>业务</strong></td><td>长任务完成率；单位时间可合并产出数</td><td>产品层核心 KPI</td></tr>
+    <tr><td><strong>Agent</strong></td><td>首次验收通过率；平均返工轮次；偏离 spec 次数</td><td>三角色闭环效率</td></tr>
+    <tr><td class="warn"><strong>Supervisor</strong> <span class="tag tag-p0">新</span></td><td>consult 采纳率（&gt; 50% 为有效）；越权率（&lt; 5%）；2 轮强制切换触发率；切换后成功率</td><td>事中干预质量——P0.5 即启用</td></tr>
+    <tr><td><strong>Evaluator</strong></td><td>扇出召回率 / 误报率（Golden Set）；P95 延迟；按角色 token</td><td>事后门禁质量 + 无害</td></tr>
+    <tr><td><strong>Golden Set</strong></td><td>bug 检出率 &gt; 80%；误报率 &lt; 30%；Supervisor 模板有效性</td><td>校准质量 + 模型漂移监控</td></tr>
+    <tr><td><strong>Proxy 数据底座</strong> <span class="tag tag-p0">新</span></td><td>logprobs 采集率（应 &gt; 95%）；reasoning 落盘成功率；header 无损率</td><td>P1 能不能起飞取决于此</td></tr>
+    <tr><td><strong>运维</strong></td><td>集群利用率；评估排队 P95；故障切换次数</td><td>资源健康</td></tr>
+  </table>
+
+  <h3>里程碑自检</h3>
+  <div class="card-grid">
+    <div class="card card-accent">
+      <h4>✓ P0 完成</h4>
+      <p>Claude Code 直连通；<strong>logprobs / reasoning / finish_reason / 完整 header</strong> 全落盘；GET /api/traces 可查询。</p>
+    </div>
+    <div class="card card-accent">
+      <h4>✓ P0.5a 完成 <span class="tag tag-p0" style="font-size:10px">第一优先</span></h4>
+      <p><strong>Pull 路径（Advisor Strategy）上线</strong>：<code>request_supervisor_consult</code> 工具可用；SWE-bench / BrowseComp 子集复现官方量级（+2.7 pp · 成本不升反降）；consult 采纳率 &gt; 50%、越权率 &lt; 5%。</p>
+    </div>
+    <div class="card card-accent">
+      <h4>✓ P0.5b 完成</h4>
+      <p>Manual Push Supervisor 可用；schema 强制有效（越权 = 0）；<strong>2 轮强制 escalate</strong> 硬规则上线；10+ 条 Golden Set 跑通。</p>
+    </div>
+    <div class="card card-accent">
+      <h4>✓ P1.0 完成</h4>
+      <p>Auto triggers 生效（tool_failure / loop / no_progress）；budget_force / wm_refresh / devil_advocate 可触发；Evaluator 返工减少 &gt; 20%。</p>
+    </div>
+    <div class="card card-accent">
+      <h4>✓ P1.1 完成</h4>
+      <p>logprob_drop / token_confidence_gate 上线；幻觉 API 返工降 &gt; 50%；异模型 supervisor 在高价值节点启用。</p>
+    </div>
+    <div class="card card-accent">
+      <h4>✓ 数据闭环</h4>
+      <p>20+ 条 Golden Set；每次模型升级跑回归并记录 diff；仪表盘可追溯任何一次 Supervisor 决策。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>十二、总结</h2>
+  <div class="card card-accent" style="font-size:15px; line-height:2;">
+    <p><strong>为什么做</strong>：长时自主任务是集群唯一的真正差异化；空余算力是战略资产，Harness 是把它转化为可靠产出的唯一路径。</p>
+    <p><strong>根因模型（R1/R2/R3）</strong>：R2（单向生成不可逆）是长任务失败的主因；<strong>阻断雪崩的 ROI 高于提升单步深度</strong>，且 &gt; 2 轮自我修正有害——这决定了架构主轴。</p>
+    <p><strong>架构骨架</strong>：Agent 三角色（Planner + Generator + Evaluator）+ <strong>Supervisor 事中总线</strong>（横跨三角色）+ Evaluator 事后门禁 + Golden Set 离线监控。Supervisor 不是第四角色，是 R2 主力弥补层。</p>
+    <p><strong>P0 必做项</strong>：透明代理不是终点——必须从 P0 就开始采集 <strong>logprobs / reasoning stream / finish_reason / 完整 header</strong>，否则砍掉 P1 最值钱的 C2 推理质量监控线。</p>
+    <p><strong>P0.5 优先级铁律（2026-04 重排）</strong>：<strong>先复刻已被 Anthropic 官方 benchmark 的 Pull 路径（P0.5a）拿到"提质 + 降本"基本盘</strong>，再做我们增量的 Push 兜底 + 2 轮强制 escalate 硬规则（P0.5b）。官方 SWE-bench +2.7 pp · 成本 -11.9% 的数据是这个顺序的定价依据——低风险、可对标、独立可验。</p>
+    <p><strong>怎么做</strong>：P0 数据底座 → <strong>P0.5a Pull advisor tool（第一优先·已验证）</strong> → P0.5b Push manual + 止损规则 → P1.0 Auto push triggers → P1.1 logprob 触发 + <code>upgrade_advisor</code>（局部升级顾问） → P1.2 ensemble_rerun + ThinkPRM。Build to Delete。所有数值不拍脑袋，用 Golden Set 和日志说话。</p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  Harness Engineering 方案 · v2.1 · 2026-04-24（Pull 路径提为第一优先级 · Anthropic Advisor Strategy 已验证）<br>
+  基于 Anthropic 2025–2026 公开研究（含 <a href="https://claude.com/blog/the-advisor-strategy" target="_blank" rel="noopener">Advisor Strategy</a>）+ deep-research-maximize-llm-quality.md + 内部集群实测推演
+</footer>
+
+<script>
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('nav a[href^="#"]');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`nav a[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-60px 0px -80% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
